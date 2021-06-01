@@ -1,2 +1,0 @@
-# DigitalArt-dapp
-To do
