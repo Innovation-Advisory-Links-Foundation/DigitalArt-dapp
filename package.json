@@ -1,0 +1,98 @@
+{
+  "name": "digitalart-dapp",
+  "version": "0.1.0",
+  "description": "A multi authorship NFT marketplace w/ royalty redistribution and IPR management",
+  "keywords": [
+    "nft",
+    "blockchain",
+    "ethereum",
+    "smart-contracts",
+    "media",
+    "art",
+    "ipr",
+    "digital-collectibles",
+    "marketplace"
+  ],
+  "files": [
+    "TODO",
+    "LICENSE",
+    "README.md"
+  ],
+  "homepage": "https://innovation-advisory-links-foundation.github.io/DigitalArt-dapp/",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "yarn build",
+    "precommit": "lint-staged",
+    "commit": "cz",
+    "lint-staged": "list-staged",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "deploy": "gh-pages -d build -a CNAME -m 'chore: deploy dapp on ghpages'"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Innovation-Advisory-Links-Foundation/DigitalArt-dapp.git"
+  },
+  "author": {
+    "name": "LINKS Foundation (BMI-OTB)",
+    "email": "giacomo.corrias@linksfoundation.com",
+    "url": "https://www.overtheblock.io/"
+  },
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Innovation-Advisory-Links-Foundation/DigitalArt-dapp.git/issues"
+  },
+  "dependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/react": "^17.0.8",
+    "@types/react-dom": "^17.0.5",
+    "commitizen": "^4.2.4",
+    "eslint-config-prettier": "^8.3.0",
+    "lint-staged": "^11.0.0",
+    "prettier": "^2.3.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "typescript": "^4.3.2",
+    "web-vitals": "^1.0.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "gh-pages": "^3.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
