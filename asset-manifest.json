@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/DigitalArt-dapp/static/css/main.8bcbd900.chunk.css",
+    "main.js": "/DigitalArt-dapp/static/js/main.b374cc19.chunk.js",
+    "main.js.map": "/DigitalArt-dapp/static/js/main.b374cc19.chunk.js.map",
+    "runtime-main.js": "/DigitalArt-dapp/static/js/runtime-main.073b9713.js",
+    "runtime-main.js.map": "/DigitalArt-dapp/static/js/runtime-main.073b9713.js.map",
+    "static/js/2.72bde0af.chunk.js": "/DigitalArt-dapp/static/js/2.72bde0af.chunk.js",
+    "static/js/2.72bde0af.chunk.js.map": "/DigitalArt-dapp/static/js/2.72bde0af.chunk.js.map",
+    "static/js/3.d6890b67.chunk.js": "/DigitalArt-dapp/static/js/3.d6890b67.chunk.js",
+    "static/js/3.d6890b67.chunk.js.map": "/DigitalArt-dapp/static/js/3.d6890b67.chunk.js.map",
+    "index.html": "/DigitalArt-dapp/index.html",
+    "service-worker.js": "/DigitalArt-dapp/service-worker.js",
+    "service-worker.js.map": "/DigitalArt-dapp/service-worker.js.map",
+    "static/css/main.8bcbd900.chunk.css.map": "/DigitalArt-dapp/static/css/main.8bcbd900.chunk.css.map",
+    "static/js/2.72bde0af.chunk.js.LICENSE.txt": "/DigitalArt-dapp/static/js/2.72bde0af.chunk.js.LICENSE.txt",
+    "static/media/logo.6ce24c58.svg": "/DigitalArt-dapp/static/media/logo.6ce24c58.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.073b9713.js",
+    "static/js/2.72bde0af.chunk.js",
+    "static/css/main.8bcbd900.chunk.css",
+    "static/js/main.b374cc19.chunk.js"
+  ]
+}
