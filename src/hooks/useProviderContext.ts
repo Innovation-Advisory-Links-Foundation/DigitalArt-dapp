@@ -1,12 +1,14 @@
-import { ethers, Signer } from "ethers"
+import { Contract, ethers } from "ethers"
 import React from "react"
 import { ProviderContextType } from "../context/ProviderContextType"
+import config from "../config"
 
 // Hook for handling the custom Metamask provider.
 export default function useProviderContext(): ProviderContextType {
   let [_provider, setProvider] = React.useState<any>() // MetaMask raw provider.
   let [_ethersProvider, setEthersProvider] = React.useState<any>() // Ethers Web3-wrapped provider.
   let [_ethersSigner, setEthersSigner] = React.useState<any>() // Signer object for the current connected account with MetaMask.
+  let [_smartContract, setSmartContract] = React.useState<any>()
 
   React.useEffect(() => {
     const init = async () => {
@@ -61,6 +63,11 @@ export default function useProviderContext(): ProviderContextType {
           window.location.reload()
         })
 
+        // Set the DigitalArt smart contract instance.
+        setSmartContract(
+          new Contract(config.contractAddress, config.abi, signer)
+        )
+
         // Set the providers.
         setProvider(_ethereumProvider)
         setEthersProvider(_ethersProvider)
@@ -87,6 +94,7 @@ export default function useProviderContext(): ProviderContextType {
   return {
     _ethersProvider,
     _ethersSigner,
+    _smartContract,
     handleOnConnect
   }
 }

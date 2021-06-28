@@ -20,6 +20,7 @@ import useProviderContext from "./hooks/useProviderContext"
 import Brightness7Icon from "@material-ui/icons/Brightness7"
 import Brightness4Icon from "@material-ui/icons/Brightness4"
 import Address from "./screens/Address"
+import BackdropProgress from "./components/BackdropProgress"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -47,8 +48,8 @@ function App() {
   const themeContext = useThemeContext()
   const providerContext = useProviderContext()
   const { _theme, toggleTheme } = themeContext
-  const { _ethersSigner, handleOnConnect } = providerContext
-  console.log(_ethersSigner)
+  const { _ethersProvider, _ethersSigner, handleOnConnect } = providerContext
+
   return (
     <ProviderContextType.Provider value={providerContext}>
       <ThemeContextType.Provider value={themeContext}>
@@ -61,7 +62,7 @@ function App() {
                     {"DIGITAL ART LOGO"}
                   </Typography>
 
-                  {!_ethersSigner._address ? (
+                  {!_ethersProvider || !_ethersSigner._address ? (
                     <Button
                       onClick={handleOnConnect}
                       color="primary"
@@ -71,7 +72,10 @@ function App() {
                       CONNECT{" "}
                     </Button>
                   ) : (
-                    <Address />
+                    <>
+                      {" "}
+                      <Address />{" "}
+                    </>
                   )}
 
                   <IconButton edge="end" onClick={toggleTheme}>
@@ -85,6 +89,8 @@ function App() {
               </AppBar>
             </Box>
           </Paper>
+
+          <BackdropProgress open={_ethersProvider === undefined} />
         </ThemeProvider>
       </ThemeContextType.Provider>
     </ProviderContextType.Provider>
