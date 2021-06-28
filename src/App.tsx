@@ -48,7 +48,7 @@ function App() {
   const providerContext = useProviderContext()
   const { _theme, toggleTheme } = themeContext
   const { _ethersSigner, handleOnConnect } = providerContext
-
+  console.log(_ethersSigner)
   return (
     <ProviderContextType.Provider value={providerContext}>
       <ThemeContextType.Provider value={themeContext}>
@@ -61,7 +61,7 @@ function App() {
                     {"DIGITAL ART LOGO"}
                   </Typography>
 
-                  {!_ethersSigner ? (
+                  {!_ethersSigner._address ? (
                     <Button
                       onClick={handleOnConnect}
                       color="primary"
