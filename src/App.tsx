@@ -1,26 +1,33 @@
 import React from "react"
-import "./App.css"
 import {
   AppBar,
   Box,
-  Button,
   createStyles,
   IconButton,
   makeStyles,
   Paper,
   Theme,
   ThemeProvider,
-  Toolbar,
-  Typography
+  Toolbar
 } from "@material-ui/core"
+import EntryPage from "./screens/Entry"
+import MarketPage from "./screens/Market"
 import ThemeContextType from "./context/ThemeContextType"
 import ProviderContextType from "./context/ProviderContextType"
 import useThemeContext from "./hooks/useThemeContext"
 import useProviderContext from "./hooks/useProviderContext"
 import Brightness7Icon from "@material-ui/icons/Brightness7"
 import Brightness4Icon from "@material-ui/icons/Brightness4"
-import Address from "./screens/Address"
 import BackdropProgress from "./components/BackdropProgress"
+import {
+  Switch,
+  Route,
+  Redirect,
+  useLocation,
+  useHistory
+} from "react-router-dom"
+import MenuIcon from "@material-ui/icons/Menu"
+import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -34,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) =>
     leftAppBarButton: {
       marginRight: theme.spacing(2)
     },
-    title: {
+    placeholder: {
       flexGrow: 1
     }
   })
@@ -47,47 +54,78 @@ function App() {
   // Custom providers.
   const themeContext = useThemeContext()
   const providerContext = useProviderContext()
-  const { _theme, toggleTheme } = themeContext
-  const { _ethersProvider, _ethersSigner, handleOnConnect } = providerContext
 
+  // React router dom providers.
+  const location = useLocation()
+  const history = useHistory()
+
+  const { _theme, toggleTheme } = themeContext
+  const { _ethersProvider, _ethersSigner } = providerContext
+  console.log(_ethersSigner)
   return (
     <ProviderContextType.Provider value={providerContext}>
       <ThemeContextType.Provider value={themeContext}>
         <ThemeProvider theme={_theme}>
           <Paper className={classes.container} elevation={0} square={true}>
-            <Box className={classes.container}>
-              <AppBar color="inherit" elevation={0} position="static">
-                <Toolbar>
-                  <Typography variant="h6" className={classes.title}>
-                    {"DIGITAL ART LOGO"}
-                  </Typography>
+            {_ethersProvider !== undefined && (
+              <Box className={classes.container}>
+                <AppBar color="inherit" elevation={0} position="static">
+                  <Toolbar>
+                    {location.pathname === "/market" ? (
+                      <>
+                        <IconButton
+                          edge="start"
+                          className={classes.leftAppBarButton}
+                        >
+                          <MenuIcon />
+                        </IconButton>
+                      </>
+                    ) : location.pathname !== "/" ? (
+                      <>
+                        <IconButton
+                          edge="start"
+                          className={classes.leftAppBarButton}
+                          onClick={() =>
+                            history.replace(
+                              _ethersSigner._address ? "/market" : "/"
+                            )
+                          }
+                        >
+                          <ArrowBackRoundedIcon />
+                        </IconButton>
+                      </>
+                    ) : null}
 
-                  {!_ethersProvider || !_ethersSigner._address ? (
-                    <Button
-                      onClick={handleOnConnect}
-                      color="primary"
-                      variant="outlined"
-                    >
-                      {" "}
-                      CONNECT{" "}
-                    </Button>
-                  ) : (
-                    <>
-                      {" "}
-                      <Address />{" "}
-                    </>
-                  )}
+                    <div className={classes.placeholder} />
 
-                  <IconButton edge="end" onClick={toggleTheme}>
-                    {_theme.palette.type !== "dark" ? (
-                      <Brightness4Icon />
+                    <IconButton edge="end" onClick={toggleTheme}>
+                      {_theme.palette.type !== "dark" ? (
+                        <Brightness4Icon />
+                      ) : (
+                        <Brightness7Icon />
+                      )}
+                    </IconButton>
+                  </Toolbar>
+                </AppBar>
+                <Switch>
+                  <Redirect exact from="/DigitalArt-dapp" to="/" />
+                  <Route path="/market">
+                    {_ethersSigner._address ? (
+                      <MarketPage />
                     ) : (
-                      <Brightness7Icon />
+                      <Redirect to={{ pathname: "/" }} />
                     )}
-                  </IconButton>
-                </Toolbar>
-              </AppBar>
-            </Box>
+                  </Route>
+                  <Route path="/">
+                    {_ethersSigner._address ? (
+                      <Redirect to={{ pathname: "/market" }} />
+                    ) : (
+                      <EntryPage />
+                    )}
+                  </Route>
+                </Switch>
+              </Box>
+            )}
           </Paper>
 
           <BackdropProgress open={_ethersProvider === undefined} />
