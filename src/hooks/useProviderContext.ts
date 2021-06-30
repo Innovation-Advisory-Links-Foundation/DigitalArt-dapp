@@ -2,6 +2,7 @@ import { Contract, ethers } from "ethers"
 import React from "react"
 import { ProviderContextType } from "../context/ProviderContextType"
 import config from "../config"
+import IPFS from "ipfs-api"
 
 // Hook for handling the custom Metamask provider.
 export default function useProviderContext(): ProviderContextType {
@@ -9,6 +10,7 @@ export default function useProviderContext(): ProviderContextType {
   let [_ethersProvider, setEthersProvider] = React.useState<any>() // Ethers Web3-wrapped provider.
   let [_ethersSigner, setEthersSigner] = React.useState<any>() // Signer object for the current connected account with MetaMask.
   let [_smartContract, setSmartContract] = React.useState<any>()
+  let [_ipfs, setIpfs] = React.useState<any>()
 
   React.useEffect(() => {
     const init = async () => {
@@ -72,6 +74,9 @@ export default function useProviderContext(): ProviderContextType {
         // Set the providers.
         setProvider(_ethereumProvider)
         setEthersProvider(_ethersProvider)
+        setIpfs(
+          new IPFS({ host: "ipfs.infura.io", port: 5001, protocol: "https" })
+        )
       }
     }
 
@@ -98,6 +103,7 @@ export default function useProviderContext(): ProviderContextType {
     _ethersProvider,
     _ethersSigner,
     _smartContract,
+    _ipfs,
     handleOnConnect
   }
 }

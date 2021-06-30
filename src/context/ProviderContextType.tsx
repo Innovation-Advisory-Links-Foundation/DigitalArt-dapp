@@ -6,6 +6,7 @@ export type ProviderContextType = {
   _ethersProvider: any
   _ethersSigner: any
   _smartContract: Contract
+  _ipfs: any
   handleOnConnect: () => {}
 }
 
