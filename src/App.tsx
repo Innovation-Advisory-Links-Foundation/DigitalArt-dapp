@@ -28,6 +28,8 @@ import {
 } from "react-router-dom"
 import MenuIcon from "@material-ui/icons/Menu"
 import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded"
+import Sidebar from "./components/SidebarMenu"
+import Artworks from "./screens/Artworks"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -61,7 +63,18 @@ function App() {
 
   const { _theme, toggleTheme } = themeContext
   const { _ethersProvider, _ethersSigner } = providerContext
-  console.log(_ethersSigner)
+
+  // Sidebar menu.
+  const [_sidebar, setSidebar] = React.useState<boolean>(false)
+
+  const openSidebar = () => {
+    setSidebar(true)
+  }
+
+  const closeSidebar = () => {
+    setSidebar(false)
+  }
+
   return (
     <ProviderContextType.Provider value={providerContext}>
       <ThemeContextType.Provider value={themeContext}>
@@ -76,9 +89,12 @@ function App() {
                         <IconButton
                           edge="start"
                           className={classes.leftAppBarButton}
+                          onClick={openSidebar}
                         >
                           <MenuIcon />
                         </IconButton>
+
+                        <Sidebar open={_sidebar} onClose={closeSidebar} />
                       </>
                     ) : location.pathname !== "/" ? (
                       <>
@@ -109,6 +125,13 @@ function App() {
                 </AppBar>
                 <Switch>
                   <Redirect exact from="/DigitalArt-dapp" to="/" />
+                  <Route path="/artworks">
+                    {_ethersSigner._address ? (
+                      <Artworks />
+                    ) : (
+                      <Redirect to={{ pathname: "/" }} />
+                    )}
+                  </Route>
                   <Route path="/market">
                     {_ethersSigner._address ? (
                       <MarketPage />

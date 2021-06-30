@@ -39,6 +39,7 @@ export default function useProviderContext(): ProviderContextType {
         const _ethersProvider = new ethers.providers.Web3Provider(
           _ethereumProvider
         )
+
         // Get the current Signer if the Metamask account is already connected.
         const signer = _ethersProvider.getSigner(
           (await _ethersProvider.listAccounts())[0]
@@ -88,6 +89,8 @@ export default function useProviderContext(): ProviderContextType {
         await _ethersProvider.listAccounts()
       )[0]
     )
+    localStorage.setItem("user_address", signer._address)
+
     setEthersSigner(signer)
   }
 
