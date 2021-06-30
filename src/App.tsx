@@ -30,6 +30,7 @@ import MenuIcon from "@material-ui/icons/Menu"
 import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded"
 import Sidebar from "./components/SidebarMenu"
 import Artworks from "./screens/Artworks"
+import MintNFTPage from "./screens/MintNFT"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -125,6 +126,13 @@ function App() {
                 </AppBar>
                 <Switch>
                   <Redirect exact from="/DigitalArt-dapp" to="/" />
+                  <Route path="/market/mint">
+                    {_ethersSigner._address ? (
+                      <MintNFTPage />
+                    ) : (
+                      <Redirect to={{ pathname: "/" }} />
+                    )}
+                  </Route>
                   <Route path="/artworks">
                     {_ethersSigner._address ? (
                       <Artworks />
