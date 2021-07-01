@@ -31,6 +31,7 @@ import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded"
 import Sidebar from "./components/SidebarMenu"
 import Artworks from "./screens/Artworks"
 import MintNFTPage from "./screens/MintNFT"
+import NFTPage from "./screens/NFTPage"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -133,6 +134,14 @@ function App() {
                       <Redirect to={{ pathname: "/" }} />
                     )}
                   </Route>
+                  <Route path="/market/:id">
+                    {_ethersSigner._address ? (
+                      <NFTPage />
+                    ) : (
+                      <Redirect to={{ pathname: "/" }} />
+                    )}
+                  </Route>
+
                   <Route path="/artworks">
                     {_ethersSigner._address ? (
                       <Artworks />

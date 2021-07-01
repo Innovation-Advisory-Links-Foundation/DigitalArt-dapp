@@ -84,13 +84,22 @@ export default function MintNFTPage() {
   }
 
   // Uploaded image.
-  const [_uploadedImage, setUploadedImage] = React.useState<any>()
+  const [_uploadedImagePreview, setUploadedImagePreview] = React.useState<any>()
+  const [_uploadedImageIpfs, setUploadedImageIpfs] = React.useState<any>()
+
   const uploadImage = (e: any) => {
     e.preventDefault()
 
     // Get the uploaded file.
     const file = e.target.files[0]
-    setUploadedImage(URL.createObjectURL(file))
+    setUploadedImagePreview(URL.createObjectURL(file))
+
+    // Prepare image for IPFS upload.
+    const reader = new window.FileReader()
+    reader.readAsArrayBuffer(file)
+    reader.onloadend = () => {
+      setUploadedImageIpfs(reader.result)
+    }
   }
 
   // Checkboxes.
@@ -108,7 +117,7 @@ export default function MintNFTPage() {
     openProgress()
 
     // Upload image to IPFS.
-    const imageCID = await _ipfs.add(Buffer.from(_uploadedImage))
+    const imageCID = await _ipfs.add(Buffer.from(_uploadedImageIpfs))
 
     // Upload NFT metadata to IPFS.
     const doc = JSON.stringify({
@@ -143,7 +152,8 @@ export default function MintNFTPage() {
     setCreator("")
     setSellingPrice("")
     setDailyLicensePrice("")
-    setUploadedImage(null)
+    setUploadedImagePreview(null)
+    setUploadedImageIpfs(null)
     setChecked({ first: false, second: false, third: false })
   }
 
@@ -154,8 +164,12 @@ export default function MintNFTPage() {
       </Typography>
 
       <Box className={classes.imagePreviewContainer}>
-        {_uploadedImage ? (
-          <img src={_uploadedImage} className={classes.image} alt=""></img>
+        {_uploadedImagePreview ? (
+          <img
+            src={_uploadedImagePreview}
+            className={classes.image}
+            alt=""
+          ></img>
         ) : (
           <Button
             variant="outlined"
@@ -195,7 +209,7 @@ export default function MintNFTPage() {
         onChange={(event) => setTitle(event.target.value)}
         margin="dense"
         label="Title"
-        disabled={_uploadedImage ? false : true}
+        disabled={_uploadedImagePreview ? false : true}
       />
 
       <TextField
@@ -203,7 +217,7 @@ export default function MintNFTPage() {
         onChange={(event) => setDescription(event.target.value)}
         margin="dense"
         label="Description"
-        disabled={_uploadedImage ? false : true}
+        disabled={_uploadedImagePreview ? false : true}
       />
 
       <TextField
@@ -211,7 +225,7 @@ export default function MintNFTPage() {
         onChange={(event) => setCreator(event.target.value)}
         margin="dense"
         label="Original Creator"
-        disabled={_uploadedImage ? false : true}
+        disabled={_uploadedImagePreview ? false : true}
       />
 
       <TextField
@@ -219,7 +233,7 @@ export default function MintNFTPage() {
         onChange={(event) => setYear(event.target.value)}
         margin="dense"
         label="Year"
-        disabled={_uploadedImage ? false : true}
+        disabled={_uploadedImagePreview ? false : true}
       />
 
       <TextField
@@ -227,7 +241,7 @@ export default function MintNFTPage() {
         onChange={(event) => setSellingPrice(event.target.value)}
         margin="dense"
         label="Selling Price (Wei)"
-        disabled={_uploadedImage ? false : true}
+        disabled={_uploadedImagePreview ? false : true}
       />
 
       <TextField
@@ -235,7 +249,7 @@ export default function MintNFTPage() {
         onChange={(event) => setDailyLicensePrice(event.target.value)}
         margin="dense"
         label="Daily License Price (Wei)"
-        disabled={_uploadedImage ? false : true}
+        disabled={_uploadedImagePreview ? false : true}
       />
 
       <Box className={classes.authContent}>
@@ -313,7 +327,7 @@ export default function MintNFTPage() {
             className={classes.button}
             onClick={onCancel}
             variant="outlined"
-            disabled={_uploadedImage ? false : true}
+            disabled={_uploadedImagePreview ? false : true}
           >
             Cancel
           </Button>
