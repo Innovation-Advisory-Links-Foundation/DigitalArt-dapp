@@ -99,11 +99,31 @@ export default function useProviderContext(): ProviderContextType {
     setEthersSigner(signer)
   }
 
+  const retrieveNfts = async () => {
+    const filter = _smartContract.filters.Transfer()
+    const transferEvents = await _smartContract.queryFilter(filter)
+
+    const nfts: any[] = []
+    const last = transferEvents.length
+
+    for (
+      let i = transferEvents.length - 1;
+      i >= transferEvents.length - last;
+      i--
+    ) {
+      const eventArgs = transferEvents[i].args as any
+
+      nfts.push(await _smartContract.idToNFT(eventArgs.tokenId.toNumber()))
+    }
+    return nfts
+  }
+
   return {
     _ethersProvider,
     _ethersSigner,
     _smartContract,
     _ipfs,
-    handleOnConnect
+    handleOnConnect,
+    retrieveNfts
   }
 }

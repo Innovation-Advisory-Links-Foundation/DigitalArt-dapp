@@ -8,6 +8,7 @@ export type ProviderContextType = {
   _smartContract: Contract
   _ipfs: any
   handleOnConnect: () => {}
+  retrieveNfts: () => Promise<any[]>
 }
 
 export default React.createContext<ProviderContextType | null>(null)
