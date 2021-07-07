@@ -17,13 +17,21 @@ import ProviderContext, {
 } from "../context/ProviderContextType"
 import BackdropProgress from "../components/BackdropProgress"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload"
+import useBooleanCondition from "../hooks/useBooleanCondition"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
       textAlign: "center",
-      justifyContent: "center",
-      paddingBottom: theme.spacing(8)
+      justifyContent: "center"
+    },
+    text: {
+      wordWrap: "break-word",
+      textDecorationColor: "default",
+      textAlign: "center"
+    },
+    title: {
+      textAlign: "center"
     },
     button: {
       marginTop: theme.spacing(1),
@@ -46,14 +54,9 @@ const useStyles = makeStyles((theme: Theme) =>
       pointerEvents: "none",
       marginBottom: theme.spacing(2)
     },
-    text: {
-      wordWrap: "break-word",
-      padding: theme.spacing(1),
-      textDecorationColor: "default"
-    },
     authContent: {
       textAlign: "center",
-      padding: theme.spacing(4)
+      margin: theme.spacing(2)
     },
     checkboxes: {
       display: "flex",
@@ -74,8 +77,8 @@ export default function MintNFTPage() {
   const [_sellingPrice, setSellingPrice] = React.useState<string>("")
   const [_dailyLicensePrice, setDailyLicensePrice] = React.useState<string>("")
   // Backdrop progress.
-  const [_progress, setProgress] = React.useState<boolean>(false)
-  // Uploaded image.
+  const [_progress, startProgress, stopProgress] = useBooleanCondition()
+  // Uploaded image preview and for IPFS.
   const [_uploadedImagePreview, setUploadedImagePreview] = React.useState<any>()
   const [_uploadedImageIpfs, setUploadedImageIpfs] = React.useState<any>()
   // Checkboxes.
@@ -94,13 +97,10 @@ export default function MintNFTPage() {
   ) as ProviderContextType
   const { mintNFT } = providerContext
 
-  const openProgress = () => {
-    setProgress(true)
-  }
-  const closeProgress = () => {
-    setProgress(false)
-  }
-
+  /**
+   * Get an image and prepare it in case of IPFS upload.
+   * @param e <any> - Input upload image event.
+   */
   const uploadImage = (e: any) => {
     e.preventDefault()
 
@@ -116,12 +116,14 @@ export default function MintNFTPage() {
     }
   }
 
+  // Handle the checkboxes status.
   const onCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked({ ..._checked, [event.target.name]: event.target.checked })
   }
 
+  // Send a transaction to the blockchain for minting a token.
   const issueToken = async () => {
-    openProgress()
+    startProgress()
 
     // Send tx.
     await mintNFT({
@@ -133,7 +135,10 @@ export default function MintNFTPage() {
       sellingPrice: _sellingPrice,
       dailyLicensePrice: _dailyLicensePrice
     })
-    closeProgress()
+
+    stopProgress()
+
+    // Redirect to marketplace.
     history.replace("/market")
   }
 
@@ -152,7 +157,7 @@ export default function MintNFTPage() {
 
   return (
     <ScrollableContainer className={classes.container} maxWidth="md">
-      <Typography variant="h6" className={classes.text}>
+      <Typography variant="h5" component="h1" className={classes.title}>
         {"MINT YOUR NFT"}
       </Typography>
 
@@ -171,7 +176,7 @@ export default function MintNFTPage() {
             startIcon={<CloudUploadIcon />}
             component="label"
           >
-            Upload File
+            Upload Image
             <input
               accept="image/*"
               className={classes.input}
@@ -258,7 +263,7 @@ export default function MintNFTPage() {
               />
             }
             label={
-              <Typography variant="body1" className={classes.text}>
+              <Typography gutterBottom variant="body1" className={classes.text}>
                 {
                   "This artwork is original and does not contain any copyrighted or restricted imagery or audio"
                 }
@@ -275,7 +280,7 @@ export default function MintNFTPage() {
               />
             }
             label={
-              <Typography variant="body1" className={classes.text}>
+              <Typography gutterBottom variant="body1" className={classes.text}>
                 {
                   "This artwork is not and will not be tokenized or available for digital purchase elsewhere"
                 }

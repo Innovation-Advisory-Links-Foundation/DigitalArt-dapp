@@ -36,6 +36,7 @@ import config from "./config"
 import IPFS from "ipfs-api"
 import { DigitalArt } from "./types/DigitalArt"
 import ProviderContextType from "./context/ProviderContextType"
+import useBooleanCondition from "./hooks/useBooleanCondition"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -64,7 +65,7 @@ function App() {
     undefined
   )
   // Sidebar menu.
-  const [_sidebar, setSidebar] = React.useState<boolean>(false)
+  const [_sidebar, openSidebar, closeSidebar] = useBooleanCondition()
 
   // React router dom providers.
   const location = useLocation()
@@ -76,14 +77,6 @@ function App() {
 
   const providerContext = useProviderContext(_digitalArt)
   const signer = _digitalArt ? _digitalArt.signer : undefined
-
-  const openSidebar = () => {
-    setSidebar(true)
-  }
-
-  const closeSidebar = () => {
-    setSidebar(false)
-  }
 
   // Explicit connect request from user w/ MetaMask.
   const connectYourWallet = async () => {

@@ -13,25 +13,25 @@ import {
   CardMedia,
   CardActionArea,
   CardContent,
-  Grid
+  Grid,
+  Avatar
 } from "@material-ui/core"
 import { useHistory } from "react-router-dom"
 import ProviderContext, {
   ProviderContextType
 } from "../context/ProviderContextType"
 import { NFT } from "../types/NFT"
+import Identicon from "react-identicons"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    container: {
-      [theme.breakpoints.down("xs")]: {
-        padding: 0
-      }
+    title: {
+      textAlign: "center"
     },
-    fab: {
-      position: "absolute",
-      right: theme.spacing(2),
-      bottom: theme.spacing(2)
+    text: {
+      wordWrap: "break-word",
+      textDecorationColor: "default",
+      textAlign: "center"
     },
     emptyListBox: {
       display: "flex",
@@ -45,37 +45,62 @@ const useStyles = makeStyles((theme: Theme) =>
     emptyListText: {
       color: theme.palette.text.hint
     },
-    text: {
-      wordWrap: "break-word",
-      padding: theme.spacing(1),
-      textDecorationColor: "default",
-      textAlign: "center"
+    fab: {
+      position: "absolute",
+      right: theme.spacing(2),
+      bottom: theme.spacing(2)
     },
-    cardsContainer: {
+    cardsBox: {
       display: "flex",
-      flexWrap: "wrap",
-      alignItems: "flex-start",
       flex: 1,
-      flexShrink: 1,
-      justifyContent: "center"
+      justifyContent: "center",
+      alignItems: "center",
+      textAlign: "center",
+      flexWrap: "wrap",
+      flexShrink: 1
     },
     card: {
       margin: theme.spacing(1),
-      border: "1px solid black",
-      width: "500px",
-      [theme.breakpoints.down("xs")]: {
-        width: "300px"
+      paddingBottom: theme.spacing(1),
+      border: "1px solid lightgrey",
+      width: "33vw",
+      height: "70vh",
+      [theme.breakpoints.down("md")]: {
+        width: "86vw"
       }
+    },
+    cardContent: {
+      padding: theme.spacing(1)
+    },
+    cardImage: {
+      height: "48vh",
+      [theme.breakpoints.down("md")]: {
+        width: "100%",
+        height: "42vh"
+      }
+    },
+    cardText: {
+      textAlign: "left"
+    },
+    ownershipBox: {
+      margin: theme.spacing(1),
+      display: "flex"
     },
     cardContainer: {
       display: "flex",
-      flexDirection: "row",
-      alignItems: "flex-start",
-      justifyContent: "space-between"
+      flexDirection: "row"
     },
-    cardContent: {
+    ownerArtistBox: {
       display: "flex",
-      flexDirection: "column"
+      flex: 1,
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center"
+    },
+    avatar: {
+      backgroundColor: "transparent",
+      width: theme.spacing(6),
+      height: theme.spacing(6)
     }
   })
 )
@@ -94,8 +119,8 @@ export default function MarketPage() {
   const { _nfts } = providerContext
 
   return (
-    <ScrollableContainer className={classes.container} maxWidth="xl">
-      <Typography variant="h6" className={classes.text}>
+    <ScrollableContainer maxWidth="xl">
+      <Typography variant="h5" component="h1" className={classes.title}>
         {"MARKET"}
       </Typography>
       {_nfts.length > 0 ? (
@@ -111,80 +136,104 @@ export default function MarketPage() {
               (nft: NFT) => nft.sellingPrice > 0 || nft.dailyLicensePrice > 0
             )
             .map((nft: NFT, i: number) => (
-              <Box key={i} className={classes.cardsContainer}>
-                <Card
-                  className={classes.card}
-                  onClick={() => history.push(`/market/${nft.id}`)}
-                >
+              <Box key={i} className={classes.cardsBox}>
+                <Card className={classes.card}>
                   <CardActionArea>
                     <CardMedia
                       component="img"
                       alt={nft.metadata.title}
                       image={nft.metadata.image}
                       title={nft.metadata.title}
+                      className={classes.cardImage}
+                      onClick={() => history.push(`/market/${nft.id}`)}
                     />
-                    <CardContent>
-                      <Typography
-                        gutterBottom
-                        variant="h5"
-                        component="h2"
-                        className={classes.text}
-                      >
-                        {nft.metadata.title}
-                      </Typography>
-                      <Typography
-                        gutterBottom
-                        variant="body1"
-                        component="p"
-                        color="textSecondary"
-                        className={classes.text}
-                      >
-                        {nft.metadata.title.substr(0, 47)}
-                        {"..."}
-                      </Typography>
+                    <CardContent className={classes.cardContent}>
+                      <Box onClick={() => history.push(`/market/${nft.id}`)}>
+                        <Typography
+                          variant="h5"
+                          component="h2"
+                          className={classes.cardText}
+                        >
+                          {nft.metadata.title}
+                        </Typography>
+
+                        <Typography
+                          gutterBottom
+                          variant="body1"
+                          component="p"
+                          className={classes.cardText}
+                        >
+                          © {nft.metadata.creator}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          color="textSecondary"
+                          className={classes.cardText}
+                          style={{ padding: 0, margin: 0, fontSize: "0.6rem" }}
+                        >
+                          {"List price / Daily license price"}
+                        </Typography>
+
+                        <Typography
+                          gutterBottom
+                          variant="h6"
+                          component="h3"
+                          className={classes.cardText}
+                          style={{ color: "green" }}
+                        >
+                          {Number(nft.sellingPrice)} {"Ξ"} /{" "}
+                          {Number(nft.dailyLicensePrice) / 1000} {"Ξ"}
+                        </Typography>
+                      </Box>
                       <Divider />
-                      <Box className={classes.cardContainer}>
-                        <Box className={classes.cardContent}>
+
+                      <Box className={classes.ownershipBox}>
+                        <Box className={classes.ownerArtistBox}>
                           <Typography
+                            gutterBottom
                             variant="body1"
-                            color="textSecondary"
-                            component="p"
-                            className={classes.text}
-                            style={{ color: "green" }}
+                            className={classes.cardText}
+                            style={{
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "0.8rem"
+                            }}
                           >
-                            {"Sale Price"}
+                            {"Artist"}
                           </Typography>
 
-                          <Typography
-                            variant="body2"
-                            component="p"
-                            className={classes.text}
-                            style={{ color: "green" }}
-                          >
-                            {Number(nft.sellingPrice)}
-                            {" wei"}
-                          </Typography>
+                          <Avatar variant="square" className={classes.avatar}>
+                            <a
+                              href={`https://rinkeby.etherscan.io/address/${nft.artist}`}
+                              target="blank"
+                            >
+                              <Identicon string={nft.artist} size={32} />
+                            </a>
+                          </Avatar>
                         </Box>
-                        <Box className={classes.cardContent}>
+                        <Box className={classes.ownerArtistBox}>
                           <Typography
+                            gutterBottom
                             variant="body1"
-                            color="textSecondary"
-                            component="p"
-                            className={classes.text}
-                            style={{ color: "green" }}
+                            className={classes.cardText}
+                            style={{
+                              padding: 0,
+                              margin: 0,
+                              fontSize: "0.8rem"
+                            }}
                           >
-                            {"License Price"}
+                            {"Owner"}
                           </Typography>
 
-                          <Typography
-                            variant="body2"
-                            component="p"
-                            className={classes.text}
-                            style={{ color: "green" }}
-                          >
-                            {Number(nft.dailyLicensePrice)}
-                            {" wei"}
-                          </Typography>
+                          <Avatar className={classes.avatar}>
+                            <a
+                              href={`https://rinkeby.etherscan.io/address/${nft.owner}`}
+                              target="blank"
+                            >
+                              <Identicon string={nft.owner} size={32} />
+                            </a>
+                          </Avatar>
                         </Box>
                       </Box>
                     </CardContent>
@@ -199,7 +248,7 @@ export default function MarketPage() {
             No NFTs!
           </Typography>
           <Typography className={classes.emptyListText} variant="subtitle1">
-            Mint your own NFT!
+            Mint your own NFT by clicking the button below!
           </Typography>
         </Box>
       )}
