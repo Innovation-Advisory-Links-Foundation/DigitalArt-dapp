@@ -11,11 +11,13 @@ import {
   Typography
 } from "@material-ui/core"
 import React from "react"
-import useProviderContext from "../hooks/useProviderContext"
 import PhotoLibraryIcon from "@material-ui/icons/PhotoLibrary"
 import ExitToAppIcon from "@material-ui/icons/ExitToApp"
 import Identicon from "react-identicons"
 import { Link } from "react-router-dom"
+import ProviderContext, {
+  ProviderContextType
+} from "../context/ProviderContextType"
 
 export interface Props {
   open: boolean
@@ -44,17 +46,19 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Sidebar({ open, onClose }: Props) {
   const classes = useStyles()
 
-  const providerContext = useProviderContext()
-  const { _ethersSigner } = providerContext
+  const providerContext = React.useContext(
+    ProviderContext
+  ) as ProviderContextType
+  const { _signerAddress } = providerContext
 
   return (
     <Drawer anchor="left" open={open} onClose={onClose}>
       <div className={classes.list} role="presentation">
         <div className={classes.currentUser}>
-          <Identicon string={_ethersSigner?._address} size={32} />
+          <Identicon string={_signerAddress} size={32} />
           <Typography variant="body1">
-            {_ethersSigner?._address.substr(0, 12)}...
-            {_ethersSigner?._address.substr(38)}
+            {_signerAddress.substr(0, 12)}...
+            {_signerAddress.substr(38)}
           </Typography>
         </div>
         <Divider />

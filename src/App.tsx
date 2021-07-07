@@ -13,7 +13,6 @@ import {
 import EntryPage from "./screens/Entry"
 import MarketPage from "./screens/Market"
 import ThemeContextType from "./context/ThemeContextType"
-import ProviderContextType from "./context/ProviderContextType"
 import useThemeContext from "./hooks/useThemeContext"
 import useProviderContext from "./hooks/useProviderContext"
 import Brightness7Icon from "@material-ui/icons/Brightness7"
@@ -32,6 +31,11 @@ import Sidebar from "./components/SidebarMenu"
 import Artworks from "./screens/Artworks"
 import MintNFTPage from "./screens/MintNFT"
 import NFTPage from "./screens/NFTPage"
+import { Contract, ethers } from "ethers"
+import config from "./config"
+import IPFS from "ipfs-api"
+import { DigitalArt } from "./types/DigitalArt"
+import ProviderContextType from "./context/ProviderContextType"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -55,19 +59,23 @@ function App() {
   // Material UI Theming.
   const classes = useStyles()
 
-  // Custom providers.
-  const themeContext = useThemeContext()
-  const providerContext = useProviderContext()
+  // Handle the provider, smart contract, signer and ipfs endpoint istances.
+  const [_digitalArt, setDigitalArt] = React.useState<DigitalArt | undefined>(
+    undefined
+  )
+  // Sidebar menu.
+  const [_sidebar, setSidebar] = React.useState<boolean>(false)
 
   // React router dom providers.
   const location = useLocation()
   const history = useHistory()
 
+  // Custom providers.
+  const themeContext = useThemeContext()
   const { _theme, toggleTheme } = themeContext
-  const { _ethersProvider, _ethersSigner } = providerContext
 
-  // Sidebar menu.
-  const [_sidebar, setSidebar] = React.useState<boolean>(false)
+  const providerContext = useProviderContext(_digitalArt)
+  const signer = _digitalArt ? _digitalArt.signer : undefined
 
   const openSidebar = () => {
     setSidebar(true)
@@ -77,12 +85,94 @@ function App() {
     setSidebar(false)
   }
 
+  // Explicit connect request from user w/ MetaMask.
+  const connectYourWallet = async () => {
+    if (_digitalArt) {
+      const { injectedProvider, provider } = _digitalArt
+
+      await injectedProvider.request({ method: "eth_requestAccounts" })
+
+      setDigitalArt({
+        ..._digitalArt,
+        signer: provider.getSigner((await provider.listAccounts())[0])
+      })
+    }
+  }
+
+  // Bootstrap the application w/ blockchain connection and related objects istantiation.
+  React.useEffect(() => {
+    const connectToBlockchain = async () => {
+      try {
+        // Let's check for the injected window.ethereum global object.
+        const ethereumInjectedProvider = window.ethereum
+
+        // Check for MetaMask provider.
+        if (!ethereumInjectedProvider?.isMetaMask) {
+          throw Error("Do you have multiple wallets installed?")
+        } else configureConnection(ethereumInjectedProvider)
+      } catch (error) {
+        throw error
+      }
+
+      /**
+       * Configure the connection to the blockchain using the Ethereum MetaMask injected provider.
+       * @param injectedProvider <any> - MetaMask Ethereum injected provider.
+       */
+      async function configureConnection(injectedProvider: any) {
+        // Request MetaMask account permission for DApp connection.
+        await injectedProvider.request({ method: "eth_accounts" })
+
+        // Wrapper for ethers provider.
+        const provider = new ethers.providers.Web3Provider(injectedProvider)
+
+        // Set current Signer.
+        const signer = provider.getSigner((await provider.listAccounts())[0])
+
+        // Listener for account change.
+        injectedProvider.on(
+          "accountsChanged",
+          async (accounts: Array<string>) => {
+            // Current MetaMask account is located to 0 index.
+            if (_digitalArt && accounts[0] !== _digitalArt.signer._address) {
+              // Update current signer.
+              setDigitalArt({
+                ..._digitalArt,
+                signer: provider.getSigner(accounts[0])
+              })
+            }
+          }
+        )
+
+        // Listener for network change.
+        injectedProvider.on("chainChanged", (id: string) => {
+          // TODO -> check chain id for smart contract switch.
+          window.location.reload()
+        })
+
+        // State update.
+        setDigitalArt({
+          injectedProvider,
+          provider,
+          signer,
+          contract: new Contract(config.contractAddress, config.abi, signer),
+          ipfs: new IPFS({
+            host: config.ipfs.host,
+            port: config.ipfs.port,
+            protocol: config.ipfs.protocol
+          })
+        })
+      }
+    }
+
+    connectToBlockchain()
+  }, [])
+
   return (
-    <ProviderContextType.Provider value={providerContext}>
-      <ThemeContextType.Provider value={themeContext}>
-        <ThemeProvider theme={_theme}>
-          <Paper className={classes.container} elevation={0} square={true}>
-            {_ethersProvider !== undefined && (
+    <ThemeContextType.Provider value={themeContext}>
+      <ThemeProvider theme={_theme}>
+        <Paper className={classes.container} elevation={0} square={true}>
+          {signer !== undefined && (
+            <ProviderContextType.Provider value={providerContext}>
               <Box className={classes.container}>
                 <AppBar color="inherit" elevation={0} position="static">
                   <Toolbar>
@@ -104,9 +194,7 @@ function App() {
                           edge="start"
                           className={classes.leftAppBarButton}
                           onClick={() =>
-                            history.replace(
-                              _ethersSigner._address ? "/market" : "/"
-                            )
+                            history.replace(signer._address ? "/market" : "/")
                           }
                         >
                           <ArrowBackRoundedIcon />
@@ -128,14 +216,14 @@ function App() {
                 <Switch>
                   <Redirect exact from="/DigitalArt-dapp" to="/" />
                   <Route path="/market/mint">
-                    {_ethersSigner._address ? (
+                    {signer._address ? (
                       <MintNFTPage />
                     ) : (
                       <Redirect to={{ pathname: "/" }} />
                     )}
                   </Route>
                   <Route path="/market/:id">
-                    {_ethersSigner._address ? (
+                    {signer._address ? (
                       <NFTPage />
                     ) : (
                       <Redirect to={{ pathname: "/" }} />
@@ -143,35 +231,36 @@ function App() {
                   </Route>
 
                   <Route path="/artworks">
-                    {_ethersSigner._address ? (
+                    {signer._address ? (
                       <Artworks />
                     ) : (
                       <Redirect to={{ pathname: "/" }} />
                     )}
                   </Route>
                   <Route path="/market">
-                    {_ethersSigner._address ? (
+                    {signer._address ? (
                       <MarketPage />
                     ) : (
                       <Redirect to={{ pathname: "/" }} />
                     )}
                   </Route>
                   <Route path="/">
-                    {_ethersSigner._address ? (
+                    {signer._address ? (
                       <Redirect to={{ pathname: "/market" }} />
                     ) : (
-                      <EntryPage />
+                      <EntryPage connect={connectYourWallet} />
                     )}
                   </Route>
                 </Switch>
               </Box>
-            )}
-          </Paper>
+            </ProviderContextType.Provider>
+          )}
+          <EntryPage />
+        </Paper>
 
-          <BackdropProgress open={_ethersProvider === undefined} />
-        </ThemeProvider>
-      </ThemeContextType.Provider>
-    </ProviderContextType.Provider>
+        <BackdropProgress open={!signer} />
+      </ThemeProvider>
+    </ThemeContextType.Provider>
   )
 }
 

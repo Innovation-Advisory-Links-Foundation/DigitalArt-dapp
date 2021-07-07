@@ -3,7 +3,6 @@ import { Theme, Container, Button, Typography } from "@material-ui/core"
 import createStyles from "@material-ui/core/styles/createStyles"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import logo from "../logo/logo.svg"
-import useProviderContext from "../hooks/useProviderContext"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -34,10 +33,8 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default function EntryPage() {
+export default function EntryPage(props: any) {
   const classes = useStyles()
-  const providerContext = useProviderContext()
-  const { handleOnConnect } = providerContext
 
   return (
     <Container className={classes.container} maxWidth="md">
@@ -47,7 +44,7 @@ export default function EntryPage() {
       </Typography>
       <Button
         className={classes.button}
-        onClick={handleOnConnect}
+        onClick={props.connect}
         variant="outlined"
       >
         Connect Your Wallet

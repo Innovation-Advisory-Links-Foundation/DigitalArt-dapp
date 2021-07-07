@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React from "react"
 import ScrollableContainer from "../components/ScrollableContainer"
 import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate"
 import {
@@ -16,8 +16,10 @@ import {
   Grid
 } from "@material-ui/core"
 import { useHistory } from "react-router-dom"
-import useProviderContext from "../hooks/useProviderContext"
-import BackdropProgress from "../components/BackdropProgress"
+import ProviderContext, {
+  ProviderContextType
+} from "../context/ProviderContextType"
+import { NFT } from "../types/NFT"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -79,51 +81,24 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 export default function MarketPage() {
+  // Material UI Theming.
   const classes = useStyles()
+
+  // React router dom providers.
   const history = useHistory()
-  const providerContext = useProviderContext()
-  const { _ethersProvider, retrieveNfts } = providerContext
 
-  const [_nfts, setNfts] = React.useState<any[]>([])
-  const [_nftsMetadata, setNftsMetadata] = React.useState<any[]>([])
-
-  // Backdrop progress.
-  const [_progress, setProgress] = React.useState<boolean>(true)
-  const openProgress = () => {
-    setProgress(true)
-  }
-  const closeProgress = () => {
-    setProgress(false)
-  }
-
-  useEffect(() => {
-    ;(async function () {
-      openProgress()
-      if (_ethersProvider !== undefined) {
-        const _nfts = await retrieveNfts()
-        setNfts(_nfts)
-
-        if (_nfts.length > 0) {
-          let _nftsMetadata: Array<any> = []
-
-          for (const nft of _nfts) {
-            const response = await fetch(nft.uri)
-            _nftsMetadata.push(await response.json())
-          }
-
-          setNftsMetadata(_nftsMetadata)
-        }
-        closeProgress()
-      }
-    })()
-  }, [_ethersProvider])
+  // Custom providers.
+  const providerContext = React.useContext(
+    ProviderContext
+  ) as ProviderContextType
+  const { _nfts } = providerContext
 
   return (
     <ScrollableContainer className={classes.container} maxWidth="xl">
       <Typography variant="h6" className={classes.text}>
         {"MARKET"}
       </Typography>
-      {_nfts.length > 0 && _nftsMetadata.length > 0 && !_progress ? (
+      {_nfts.length > 0 ? (
         <Grid
           container
           direction="row"
@@ -131,11 +106,11 @@ export default function MarketPage() {
           alignItems="center"
         >
           {_nfts
-            .sort((a: any, b: any) => a.id - b.id)
+            .sort((a: NFT, b: NFT) => a.id - b.id)
             .filter(
-              (nft: any) => nft.sellingPrice > 0 || nft.dailyLicensePrice > 0
+              (nft: NFT) => nft.sellingPrice > 0 || nft.dailyLicensePrice > 0
             )
-            .map((nft: any, i: number) => (
+            .map((nft: NFT, i: number) => (
               <Box key={i} className={classes.cardsContainer}>
                 <Card
                   className={classes.card}
@@ -144,9 +119,9 @@ export default function MarketPage() {
                   <CardActionArea>
                     <CardMedia
                       component="img"
-                      alt={_nftsMetadata[nft.id - 1].title}
-                      image={_nftsMetadata[nft.id - 1].image}
-                      title={_nftsMetadata[nft.id - 1].title}
+                      alt={nft.metadata.title}
+                      image={nft.metadata.image}
+                      title={nft.metadata.title}
                     />
                     <CardContent>
                       <Typography
@@ -155,7 +130,7 @@ export default function MarketPage() {
                         component="h2"
                         className={classes.text}
                       >
-                        {_nftsMetadata[nft.id - 1].title}
+                        {nft.metadata.title}
                       </Typography>
                       <Typography
                         gutterBottom
@@ -164,7 +139,7 @@ export default function MarketPage() {
                         color="textSecondary"
                         className={classes.text}
                       >
-                        {_nftsMetadata[nft.id - 1].description.substr(0, 47)}
+                        {nft.metadata.title.substr(0, 47)}
                         {"..."}
                       </Typography>
                       <Divider />
@@ -231,8 +206,6 @@ export default function MarketPage() {
       <Fab className={classes.fab} onClick={() => history.push("/market/mint")}>
         <AddPhotoAlternateIcon />
       </Fab>
-
-      <BackdropProgress open={_progress} />
     </ScrollableContainer>
   )
 }

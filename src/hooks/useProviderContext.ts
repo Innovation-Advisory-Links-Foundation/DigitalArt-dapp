@@ -1,129 +1,79 @@
-import { Contract, ethers } from "ethers"
 import React from "react"
 import { ProviderContextType } from "../context/ProviderContextType"
-import config from "../config"
-import IPFS from "ipfs-api"
+import { DigitalArt } from "../types/DigitalArt"
+import { NFT } from "../types/NFT"
+import { retrieveNfts } from "../utils/nft"
+import { onNFTMinted } from "../utils/listeners"
+import { MintNFTInputData } from "../types/TXInputData"
 
 // Hook for handling the custom Metamask provider.
-export default function useProviderContext(): ProviderContextType {
-  let [_provider, setProvider] = React.useState<any>() // MetaMask raw provider.
-  let [_ethersProvider, setEthersProvider] = React.useState<any>() // Ethers Web3-wrapped provider.
-  let [_ethersSigner, setEthersSigner] = React.useState<any>() // Signer object for the current connected account with MetaMask.
-  let [_smartContract, setSmartContract] = React.useState<any>()
-  let [_ipfs, setIpfs] = React.useState<any>()
+export default function useProviderContext(
+  digitalArt: DigitalArt | undefined
+): ProviderContextType {
+  const [_nfts, setNfts] = React.useState<Array<NFT>>([])
+  const [_signerAddress, setSignerAddress] = React.useState<string>("")
 
   React.useEffect(() => {
-    const init = async () => {
-      // Check for an injected provider in the browser.
-      try {
-        // Ethereum injected provider on global window object.
-        const ethereumProvider = window.ethereum
+    ;(async function () {
+      // Check if MetaMask is properly connected, so we get a Signer object for the current account.
+      if (digitalArt?.signer._address) {
+        // Update signer. // TODO -> refactoring? can be used for checks?
+        setSignerAddress(digitalArt.signer._address)
 
-        startApp(ethereumProvider)
-      } catch (error) {
-        throw error
-      }
+        // Read data from smart contracts.
+        const nfts = await retrieveNfts(digitalArt.contract)
 
-      /**
-       * Handle the entire logic for bootstrapping the DApp w/ Metamask and Ethersjs (provider, current signer, etc.).
-       * @param _ethereumProvider any - Injected Ethereum provider in the browser.
-       */
-      async function startApp(_ethereumProvider: any) {
-        if (!_ethereumProvider.isMetaMask) {
-          alert("Do you have multiple wallets installed?")
-          return
+        if (nfts.length > 0) {
+          setNfts(nfts)
         }
-
-        // Request Metamask account connection permissions.
-        await _ethereumProvider.request({ method: "eth_accounts" })
-
-        // Wrap the Metamask provider to Ethers Web3Provider.
-        const _ethersProvider = new ethers.providers.Web3Provider(
-          _ethereumProvider
-        )
-
-        // Get the current Signer if the Metamask account is already connected.
-        const signer = _ethersProvider.getSigner(
-          (await _ethersProvider.listAccounts())[0]
-        )
-        setEthersSigner(signer)
-
-        // Listener for account changes.
-        _ethereumProvider.on(
-          "accountsChanged",
-          async (accounts: Array<string>) => {
-            if (accounts[0] !== signer._address) {
-              let signer = _ethersProvider.getSigner(
-                (await _ethersProvider.listAccounts())[0]
-              )
-              setEthersSigner(signer)
-            }
-          }
-        )
-
-        // Listener for network changes.
-        _ethereumProvider.on("chainChanged", (chainId: string) => {
-          window.location.reload()
-        })
-
-        // Set the DigitalArt smart contract instance.
-        setSmartContract(
-          new Contract(config.contractAddress, config.abi, signer)
-        )
-
-        // Set the providers.
-        setProvider(_ethereumProvider)
-        setEthersProvider(_ethersProvider)
-        setIpfs(
-          new IPFS({ host: "ipfs.infura.io", port: 5001, protocol: "https" })
-        )
       }
+    })()
+  }, [digitalArt?.signer._address])
+
+  // Listen to mint token events (Transfer) to stay up-to-date.
+  React.useEffect(() => {
+    if (digitalArt) {
+      return onNFTMinted(digitalArt.contract, (nft) => {
+        // TODO -> Refactoring, but for now it works (duplicate last id fixed).
+        if (_nfts.length === 0) setNfts([..._nfts, nft])
+        else {
+          if (Number(nft.id) !== Number(_nfts[_nfts.length - 1].id))
+            setNfts([..._nfts, nft])
+        }
+      })
     }
+  }, [digitalArt, _nfts])
 
-    init()
-  }, [])
+  async function mintNFT(data: MintNFTInputData) {
+    if (digitalArt) {
+      // Upload image to IPFS.
+      const imageCID = await digitalArt.ipfs.add(Buffer.from(data.image))
 
-  /**
-   * Connect the Metamask account w/ the DApp.
-   */
-  const handleOnConnect = async () => {
-    await _provider.request({ method: "eth_requestAccounts" })
+      // Upload NFT metadata to IPFS.
+      const doc = JSON.stringify({
+        title: data.title,
+        description: data.description,
+        creator: data.creator,
+        year: data.year,
+        image: `https://ipfs.io/ipfs/${imageCID[0].hash}`
+      })
+      const metadataCID = await digitalArt.ipfs.add(Buffer.from(doc))
 
-    let signer = await _ethersProvider.getSigner(
-      (
-        await _ethersProvider.listAccounts()
-      )[0]
-    )
-    localStorage.setItem("user_address", signer._address)
+      const tx = await digitalArt.contract
+        .connect(digitalArt.signer)
+        .safeMint(
+          `https://ipfs.io/ipfs/${metadataCID[0].hash}`,
+          data.sellingPrice,
+          data.dailyLicensePrice
+        )
 
-    setEthersSigner(signer)
-  }
-
-  const retrieveNfts = async () => {
-    const filter = _smartContract.filters.Transfer()
-    const transferEvents = await _smartContract.queryFilter(filter)
-
-    const nfts: any[] = []
-    const last = transferEvents.length
-
-    for (
-      let i = transferEvents.length - 1;
-      i >= transferEvents.length - last;
-      i--
-    ) {
-      const eventArgs = transferEvents[i].args as any
-
-      nfts.push(await _smartContract.idToNFT(eventArgs.tokenId.toNumber()))
+      await tx.wait()
     }
-    return nfts
   }
 
   return {
-    _ethersProvider,
-    _ethersSigner,
-    _smartContract,
-    _ipfs,
-    handleOnConnect,
-    retrieveNfts
+    _nfts,
+    mintNFT,
+    _signerAddress
   }
 }

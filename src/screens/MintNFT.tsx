@@ -12,7 +12,9 @@ import {
   FormControlLabel
 } from "@material-ui/core"
 import { useHistory } from "react-router-dom"
-import useProviderContext from "../hooks/useProviderContext"
+import ProviderContext, {
+  ProviderContextType
+} from "../context/ProviderContextType"
 import BackdropProgress from "../components/BackdropProgress"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload"
 
@@ -61,10 +63,8 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 export default function MintNFTPage() {
+  // Material UI Theming.
   const classes = useStyles()
-  const history = useHistory()
-  const providerContext = useProviderContext()
-  const { _smartContract, _ethersSigner, _ipfs } = providerContext
 
   // Form input data.
   const [_title, setTitle] = React.useState<string>("")
@@ -73,19 +73,33 @@ export default function MintNFTPage() {
   const [_year, setYear] = React.useState<string>("")
   const [_sellingPrice, setSellingPrice] = React.useState<string>("")
   const [_dailyLicensePrice, setDailyLicensePrice] = React.useState<string>("")
-
   // Backdrop progress.
   const [_progress, setProgress] = React.useState<boolean>(false)
+  // Uploaded image.
+  const [_uploadedImagePreview, setUploadedImagePreview] = React.useState<any>()
+  const [_uploadedImageIpfs, setUploadedImageIpfs] = React.useState<any>()
+  // Checkboxes.
+  const [_checked, setChecked] = React.useState({
+    first: false,
+    second: false,
+    third: false
+  })
+
+  // React router dom providers.
+  const history = useHistory()
+
+  // Custom providers.
+  const providerContext = React.useContext(
+    ProviderContext
+  ) as ProviderContextType
+  const { mintNFT } = providerContext
+
   const openProgress = () => {
     setProgress(true)
   }
   const closeProgress = () => {
     setProgress(false)
   }
-
-  // Uploaded image.
-  const [_uploadedImagePreview, setUploadedImagePreview] = React.useState<any>()
-  const [_uploadedImageIpfs, setUploadedImageIpfs] = React.useState<any>()
 
   const uploadImage = (e: any) => {
     e.preventDefault()
@@ -102,13 +116,6 @@ export default function MintNFTPage() {
     }
   }
 
-  // Checkboxes.
-  const [_checked, setChecked] = React.useState({
-    first: false,
-    second: false,
-    third: false
-  })
-
   const onCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked({ ..._checked, [event.target.name]: event.target.checked })
   }
@@ -116,30 +123,16 @@ export default function MintNFTPage() {
   const issueToken = async () => {
     openProgress()
 
-    // Upload image to IPFS.
-    const imageCID = await _ipfs.add(Buffer.from(_uploadedImageIpfs))
-
-    // Upload NFT metadata to IPFS.
-    const doc = JSON.stringify({
+    // Send tx.
+    await mintNFT({
       title: _title,
       description: _description,
       creator: _creator,
       year: _year,
-      image: `https://ipfs.io/ipfs/${imageCID[0].hash}`
+      image: _uploadedImageIpfs,
+      sellingPrice: _sellingPrice,
+      dailyLicensePrice: _dailyLicensePrice
     })
-    const metadataCID = await _ipfs.add(Buffer.from(doc))
-
-    // Send tx.
-    const tx = await _smartContract
-      .connect(_ethersSigner)
-      .safeMint(
-        `https://ipfs.io/ipfs/${metadataCID[0].hash}`,
-        _sellingPrice,
-        _dailyLicensePrice
-      )
-
-    await tx.wait()
-
     closeProgress()
     history.replace("/market")
   }
@@ -229,6 +222,7 @@ export default function MintNFTPage() {
       />
 
       <TextField
+        type="number"
         value={_year}
         onChange={(event) => setYear(event.target.value)}
         margin="dense"
