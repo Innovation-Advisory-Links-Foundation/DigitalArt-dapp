@@ -14,7 +14,10 @@ export default function useThemeContext(): ThemeContextType {
       palette: {
         type: _themeType,
         primary: {
-          main: "#1A34F2"
+          main: _themeType === "light" ? "#14110F" : "#F4F4F9"
+        },
+        background: {
+          paper: _themeType === "light" ? "#F4F4F9" : "#34312D"
         }
       }
     })
