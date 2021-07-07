@@ -42,7 +42,7 @@ export default function useProviderContext(
         }
       })
     }
-  }, [digitalArt, _nfts])
+  }, [digitalArt?.signer._address, _nfts])
 
   async function mintNFT(data: MintNFTInputData) {
     if (digitalArt) {
