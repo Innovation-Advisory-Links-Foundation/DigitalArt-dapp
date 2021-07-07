@@ -1,28 +1,30 @@
 import React from "react"
-import { ProviderContextType } from "../context/ProviderContextType"
+import { DigitalArtContextType } from "../context/DigitalArtContext"
 import { DigitalArt } from "../types/DigitalArt"
-import { NFT } from "../types/NFT"
-import { retrieveNfts } from "../utils/nft"
+import { retrieveNfts } from "../utils/smartContract"
 import { onNFTMinted } from "../utils/listeners"
-import { MintNFTInputData } from "../types/TXInputData"
+import { SafeMintTxInputData, NFT } from "../types/Blockchain"
 
 // Hook for handling the custom Metamask provider.
-export default function useProviderContext(
+export default function useDigitalArtContext(
   digitalArt: DigitalArt | undefined
-): ProviderContextType {
-  const [_nfts, setNfts] = React.useState<Array<NFT>>([])
+): DigitalArtContextType {
+  // The address of the current signer.
   const [_signerAddress, setSignerAddress] = React.useState<string>("")
+  // All NFTs minted and recorded in the smart contract.
+  const [_nfts, setNfts] = React.useState<Array<NFT>>([])
 
   React.useEffect(() => {
     ;(async function () {
       // Check if MetaMask is properly connected, so we get a Signer object for the current account.
       if (digitalArt?.signer._address) {
-        // Update signer. // TODO -> refactoring? can be used for checks?
+        // Update signer.
         setSignerAddress(digitalArt.signer._address)
 
         // Read data from smart contracts.
         const nfts = await retrieveNfts(digitalArt.contract)
 
+        // State update.
         if (nfts.length > 0) {
           setNfts(nfts)
         }
@@ -30,21 +32,25 @@ export default function useProviderContext(
     })()
   }, [digitalArt?.signer._address])
 
-  // Listen to mint token events (Transfer) to stay up-to-date.
+  // Listen to smart contract mint token events.
   React.useEffect(() => {
     if (digitalArt) {
       return onNFTMinted(digitalArt.contract, (nft) => {
-        // TODO -> Refactoring, but for now it works (duplicate last id fixed).
-        if (_nfts.length === 0) setNfts([..._nfts, nft])
-        else {
-          if (Number(nft.id) !== Number(_nfts[_nfts.length - 1].id))
-            setNfts([..._nfts, nft])
-        }
+        setNfts(
+          _nfts.length === 0 ||
+            Number(nft.id) !== Number(_nfts[_nfts.length - 1].id)
+            ? [..._nfts, nft]
+            : [..._nfts]
+        )
       })
     }
   }, [digitalArt?.signer._address, _nfts])
 
-  async function mintNFT(data: MintNFTInputData) {
+  /**
+   * Upload the image to IPFS and mint the NFT.
+   * @param data <SafeMintTxInputData> - Necessary data to mint a NFT.
+   */
+  async function mintNFT(data: SafeMintTxInputData) {
     if (digitalArt) {
       // Upload image to IPFS.
       const imageCID = await digitalArt.ipfs.add(Buffer.from(data.image))
@@ -59,6 +65,7 @@ export default function useProviderContext(
       })
       const metadataCID = await digitalArt.ipfs.add(Buffer.from(doc))
 
+      // Send the tx.
       const tx = await digitalArt.contract
         .connect(digitalArt.signer)
         .safeMint(
@@ -67,13 +74,14 @@ export default function useProviderContext(
           data.dailyLicensePrice
         )
 
+      // Wait for tx confirmation.
       await tx.wait()
     }
   }
 
   return {
+    _signerAddress,
     _nfts,
-    mintNFT,
-    _signerAddress
+    mintNFT
   }
 }

@@ -14,7 +14,7 @@ import EntryPage from "./screens/Entry"
 import MarketPage from "./screens/Market"
 import ThemeContextType from "./context/ThemeContextType"
 import useThemeContext from "./hooks/useThemeContext"
-import useProviderContext from "./hooks/useProviderContext"
+import useProviderContext from "./hooks/useDigitalArt"
 import Brightness7Icon from "@material-ui/icons/Brightness7"
 import Brightness4Icon from "@material-ui/icons/Brightness4"
 import BackdropProgress from "./components/BackdropProgress"
@@ -35,7 +35,7 @@ import { Contract, ethers } from "ethers"
 import config from "./config"
 import IPFS from "ipfs-api"
 import { DigitalArt } from "./types/DigitalArt"
-import ProviderContextType from "./context/ProviderContextType"
+import DigitalArtContextType from "./context/DigitalArtContext"
 import useBooleanCondition from "./hooks/useBooleanCondition"
 
 // Custom styles.
@@ -165,7 +165,7 @@ function App() {
       <ThemeProvider theme={_theme}>
         <Paper className={classes.container} elevation={0} square={true}>
           {signer !== undefined && (
-            <ProviderContextType.Provider value={providerContext}>
+            <DigitalArtContextType.Provider value={providerContext}>
               <Box className={classes.container}>
                 <AppBar color="inherit" elevation={0} position="static">
                   <Toolbar>
@@ -246,7 +246,7 @@ function App() {
                   </Route>
                 </Switch>
               </Box>
-            </ProviderContextType.Provider>
+            </DigitalArtContextType.Provider>
           )}
           <EntryPage />
         </Paper>

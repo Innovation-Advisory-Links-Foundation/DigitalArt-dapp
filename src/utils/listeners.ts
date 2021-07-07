@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from "ethers"
-import { NFT } from "../types/NFT"
-import { retrieveNft } from "./nft"
+import { NFT } from "../types/Blockchain"
+import { retrieveNft } from "./smartContract"
 
 /**
  * Bind a listener to the DigitalArt smart contract NFT mint event.

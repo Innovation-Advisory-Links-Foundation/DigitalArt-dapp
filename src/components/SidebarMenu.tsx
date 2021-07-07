@@ -16,8 +16,8 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp"
 import Identicon from "react-identicons"
 import { Link } from "react-router-dom"
 import ProviderContext, {
-  ProviderContextType
-} from "../context/ProviderContextType"
+  DigitalArtContextType
+} from "../context/DigitalArtContext"
 
 export interface Props {
   open: boolean
@@ -48,7 +48,7 @@ export default function Sidebar({ open, onClose }: Props) {
 
   const providerContext = React.useContext(
     ProviderContext
-  ) as ProviderContextType
+  ) as DigitalArtContextType
   const { _signerAddress } = providerContext
 
   return (
@@ -63,7 +63,6 @@ export default function Sidebar({ open, onClose }: Props) {
         </div>
         <Divider />
         <List>
-          {/* TODO -> onClick() to go to collection page. */}
           <Link to="/artworks" className={classes.link}>
             <ListItem onClick={onClose} button>
               <ListItemIcon>

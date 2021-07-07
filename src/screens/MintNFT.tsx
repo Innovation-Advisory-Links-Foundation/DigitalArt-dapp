@@ -13,8 +13,8 @@ import {
 } from "@material-ui/core"
 import { useHistory } from "react-router-dom"
 import ProviderContext, {
-  ProviderContextType
-} from "../context/ProviderContextType"
+  DigitalArtContextType
+} from "../context/DigitalArtContext"
 import BackdropProgress from "../components/BackdropProgress"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload"
 import useBooleanCondition from "../hooks/useBooleanCondition"
@@ -94,7 +94,7 @@ export default function MintNFTPage() {
   // Custom providers.
   const providerContext = React.useContext(
     ProviderContext
-  ) as ProviderContextType
+  ) as DigitalArtContextType
   const { mintNFT } = providerContext
 
   /**

@@ -18,9 +18,9 @@ import {
 } from "@material-ui/core"
 import { useHistory } from "react-router-dom"
 import ProviderContext, {
-  ProviderContextType
-} from "../context/ProviderContextType"
-import { NFT } from "../types/NFT"
+  DigitalArtContextType
+} from "../context/DigitalArtContext"
+import { NFT } from "../types/Blockchain"
 import Identicon from "react-identicons"
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -115,7 +115,7 @@ export default function MarketPage() {
   // Custom providers.
   const providerContext = React.useContext(
     ProviderContext
-  ) as ProviderContextType
+  ) as DigitalArtContextType
   const { _nfts } = providerContext
 
   return (
