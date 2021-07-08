@@ -18,6 +18,7 @@ import ProviderContext, {
 import BackdropProgress from "../components/BackdropProgress"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload"
 import useBooleanCondition from "../hooks/useBooleanCondition"
+import { parseUnits } from "@ethersproject/units"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -125,6 +126,12 @@ export default function MintNFTPage() {
   const issueToken = async () => {
     startProgress()
 
+    // Parse from ethers to wei.
+    const sellingPriceInWei = Number(parseUnits(_sellingPrice, 18)).toString()
+    const dailyLicensePriceInWei = Number(
+      parseUnits(_dailyLicensePrice, 18)
+    ).toString()
+
     // Send tx.
     await mintNFT({
       title: _title,
@@ -132,8 +139,8 @@ export default function MintNFTPage() {
       creator: _creator,
       year: _year,
       image: _uploadedImageIpfs,
-      sellingPrice: _sellingPrice,
-      dailyLicensePrice: _dailyLicensePrice
+      sellingPrice: sellingPriceInWei,
+      dailyLicensePrice: dailyLicensePriceInWei
     })
 
     stopProgress()
@@ -239,7 +246,8 @@ export default function MintNFTPage() {
         value={_sellingPrice}
         onChange={(event) => setSellingPrice(event.target.value)}
         margin="dense"
-        label="Selling Price (Wei)"
+        label="Selling Price (Ξ)"
+        placeholder="0.1"
         disabled={_uploadedImagePreview ? false : true}
       />
 
@@ -247,7 +255,8 @@ export default function MintNFTPage() {
         value={_dailyLicensePrice}
         onChange={(event) => setDailyLicensePrice(event.target.value)}
         margin="dense"
-        label="Daily License Price (Wei)"
+        label="Daily License Price (Ξ)"
+        placeholder="0.001"
         disabled={_uploadedImagePreview ? false : true}
       />
 

@@ -22,6 +22,7 @@ import ProviderContext, {
 } from "../context/DigitalArtContext"
 import { NFT } from "../types/Blockchain"
 import Identicon from "react-identicons"
+import { formatUnits } from "ethers/lib/utils"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -182,8 +183,12 @@ export default function MarketPage() {
                           className={classes.cardText}
                           style={{ color: "green" }}
                         >
-                          {Number(nft.sellingPrice)} {"Ξ"} /{" "}
-                          {Number(nft.dailyLicensePrice) / 1000} {"Ξ"}
+                          {Number(formatUnits(nft.sellingPrice.toString()))}{" "}
+                          {"Ξ"} /{" "}
+                          {Number(
+                            formatUnits(nft.dailyLicensePrice.toString())
+                          )}{" "}
+                          {"Ξ"}
                         </Typography>
                       </Box>
                       <Divider />
