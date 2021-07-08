@@ -63,10 +63,11 @@ const useStyles = makeStyles((theme: Theme) =>
     card: {
       margin: theme.spacing(1),
       paddingBottom: theme.spacing(1),
-      border: "1px solid lightgrey",
+      border: "1px solid black",
       width: "33vw",
-      height: "70vh",
-      [theme.breakpoints.down("md")]: {
+      height: "68vh",
+      [theme.breakpoints.down("sm")]: {
+        height: "72vh",
         width: "86vw"
       }
     },
@@ -74,10 +75,10 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(1)
     },
     cardImage: {
-      height: "48vh",
-      [theme.breakpoints.down("md")]: {
+      height: "50vh",
+      [theme.breakpoints.down("sm")]: {
         width: "100%",
-        height: "42vh"
+        height: "48vh"
       }
     },
     cardText: {
@@ -99,9 +100,7 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: "center"
     },
     avatar: {
-      backgroundColor: "transparent",
-      width: theme.spacing(6),
-      height: theme.spacing(6)
+      backgroundColor: "transparent"
     }
   })
 )
@@ -159,25 +158,6 @@ export default function MarketPage() {
                         </Typography>
 
                         <Typography
-                          gutterBottom
-                          variant="body1"
-                          component="p"
-                          className={classes.cardText}
-                        >
-                          © {nft.metadata.creator}
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          color="textSecondary"
-                          className={classes.cardText}
-                          style={{ padding: 0, margin: 0, fontSize: "0.6rem" }}
-                        >
-                          {"List price / Daily license price"}
-                        </Typography>
-
-                        <Typography
-                          gutterBottom
                           variant="h6"
                           component="h3"
                           className={classes.cardText}
@@ -191,7 +171,17 @@ export default function MarketPage() {
                           {"Ξ"}
                         </Typography>
                       </Box>
-                      <Divider />
+                      <Typography
+                        gutterBottom
+                        variant="body2"
+                        className={classes.cardText}
+                        color="textSecondary"
+                        style={{ padding: 0, fontSize: "0.8rem" }}
+                      >
+                        <i>{"List price / Daily license price"}</i>
+                      </Typography>
+
+                      <Divider style={{ backgroundColor: "black" }} />
 
                       <Box className={classes.ownershipBox}>
                         <Box className={classes.ownerArtistBox}>
@@ -199,16 +189,17 @@ export default function MarketPage() {
                             gutterBottom
                             variant="body1"
                             className={classes.cardText}
+                            color="textSecondary"
                             style={{
                               padding: 0,
                               margin: 0,
                               fontSize: "0.8rem"
                             }}
                           >
-                            {"Artist"}
+                            {"ARTIST"}
                           </Typography>
 
-                          <Avatar variant="square" className={classes.avatar}>
+                          <Avatar className={classes.avatar}>
                             <a
                               href={`https://rinkeby.etherscan.io/address/${nft.artist}`}
                               target="blank"
@@ -222,13 +213,14 @@ export default function MarketPage() {
                             gutterBottom
                             variant="body1"
                             className={classes.cardText}
+                            color="textSecondary"
                             style={{
                               padding: 0,
                               margin: 0,
                               fontSize: "0.8rem"
                             }}
                           >
-                            {"Owner"}
+                            {"OWNER"}
                           </Typography>
 
                           <Avatar className={classes.avatar}>
