@@ -1,7 +1,6 @@
 import React from "react"
 import {
   Theme,
-  Container,
   Typography,
   Divider,
   Box,
@@ -10,13 +9,12 @@ import {
   Radio,
   FormControl,
   FormControlLabel,
-  FormLabel,
   RadioGroup,
   Slider
 } from "@material-ui/core"
 import createStyles from "@material-ui/core/styles/createStyles"
 import makeStyles from "@material-ui/core/styles/makeStyles"
-import { useParams } from "react-router-dom"
+import { useHistory, useParams } from "react-router-dom"
 import { NFT } from "../types/Blockchain"
 import ProviderContext, {
   DigitalArtContextType
@@ -117,10 +115,14 @@ export default function NFTPage() {
   // Retrieve the id from the url.
   const { id } = useParams<any>()
 
+  // React router dom providers.
+  const history = useHistory()
+
   // Custom providers.
   const providerContext = React.useContext(
     ProviderContext
   ) as DigitalArtContextType
+  const { _signerAddress, buyNFT } = providerContext
 
   React.useEffect(() => {
     startProgress()
@@ -143,6 +145,22 @@ export default function NFTPage() {
 
   const handleSliderChange = (event: any, newValue: number | number[]) => {
     setDays(typeof newValue === "number" ? newValue : 1)
+  }
+
+  const handleBuy = async () => {
+    startProgress()
+    if (_nft && _buyRadio) {
+      // Send tx.
+      await buyNFT({
+        id,
+        txValue: _nft.sellingPrice
+      })
+
+      stopProgress()
+
+      // Redirect. TODO -> redirect to personal nft owner page where he/she can resell or make licensable the nft.
+      history.replace("/market")
+    }
   }
 
   return (
@@ -185,10 +203,10 @@ export default function NFTPage() {
             <Box className={classes.ownershipContentBox}>
               <Avatar className={classes.avatar}>
                 <a
-                  href={`https://rinkeby.etherscan.io/address/${_nft.artist}`}
+                  href={`https://rinkeby.etherscan.io/address/${_nft.owner}`}
                   target="blank"
                 >
-                  <Identicon string={_nft.artist} size={32} />
+                  <Identicon string={_nft.owner} size={32} />
                 </a>
               </Avatar>
 
@@ -203,107 +221,121 @@ export default function NFTPage() {
               </Box>
             </Box>
           </Box>
-          <FormControl component="fieldset" className={classes.formControl}>
-            <RadioGroup
-              aria-label="position"
-              name="position"
-              defaultValue="top"
-              className={classes.formGroup}
-            >
-              <FormControlLabel
-                value="value1"
-                control={<Radio color="primary" onClick={handleBuyRadio} />}
-                className={classes.formControlLabel}
-                label={
-                  <Box className={classes.labelBox}>
-                    <Typography variant="h6" component="h6">
-                      {"BUY NFT "}
-                    </Typography>
+          {_nft.owner !== _signerAddress && (
+            <FormControl component="fieldset" className={classes.formControl}>
+              <RadioGroup
+                aria-label="position"
+                name="position"
+                defaultValue="top"
+                className={classes.formGroup}
+              >
+                {Number(_nft.sellingPrice) > 0 && (
+                  <FormControlLabel
+                    value="value1"
+                    control={<Radio color="primary" onClick={handleBuyRadio} />}
+                    className={classes.formControlLabel}
+                    label={
+                      <Box className={classes.labelBox}>
+                        <Typography variant="h6" component="h6">
+                          {"BUY NFT "}
+                        </Typography>
 
-                    <Typography variant="body1" component="p">
-                      {"Price "}{" "}
-                      <b>
-                        {Number(formatUnits(_nft.sellingPrice.toString()))}{" "}
-                        {"Ξ"}
-                      </b>
-                    </Typography>
+                        <Typography variant="body1" component="p">
+                          {"Price "}{" "}
+                          <b>
+                            {Number(formatUnits(_nft.sellingPrice.toString()))}{" "}
+                            {"Ξ"}
+                          </b>
+                        </Typography>
 
-                    <Typography
-                      variant="body1"
-                      component="p"
-                      color="textSecondary"
-                    >
-                      {"7% resale fee for the artist"}
-                    </Typography>
-                  </Box>
-                }
-              />
+                        <Typography
+                          variant="body1"
+                          component="p"
+                          color="textSecondary"
+                        >
+                          {"7% resale fee for the artist"}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                )}
+                {Number(_nft.dailyLicensePrice) > 0 && (
+                  <FormControlLabel
+                    value="value2"
+                    control={
+                      <Radio color="primary" onClick={handleLicenseRadio} />
+                    }
+                    className={classes.formControlLabel}
+                    label={
+                      <Box className={classes.labelBox}>
+                        <Typography variant="h6" component="h6">
+                          {"GET A LICENSE"}
+                        </Typography>
+                        <Typography variant="body1" component="p">
+                          {"Price (daily) "}{" "}
+                          <b>
+                            {Number(
+                              formatUnits(_nft.dailyLicensePrice.toString())
+                            )}{" "}
+                            {"Ξ"}
+                          </b>
+                        </Typography>
 
-              <FormControlLabel
-                value="value2"
-                control={<Radio color="primary" onClick={handleLicenseRadio} />}
-                className={classes.formControlLabel}
-                label={
-                  <Box className={classes.labelBox}>
-                    <Typography variant="h6" component="h6">
-                      {"GET A LICENSE"}
-                    </Typography>
-                    <Typography variant="body1" component="p">
-                      {"Price (daily) "}{" "}
-                      <b>
-                        {Number(formatUnits(_nft.dailyLicensePrice.toString()))}{" "}
-                        {"Ξ"}
-                      </b>
-                    </Typography>
+                        <Typography
+                          variant="body1"
+                          component="p"
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          {"3% resale fee for the artist"}
+                        </Typography>
 
-                    <Typography
-                      variant="body1"
-                      component="p"
-                      color="textSecondary"
-                      gutterBottom
-                    >
-                      {"3% resale fee for the artist"}
-                    </Typography>
-
-                    <Slider
-                      defaultValue={1}
-                      step={1}
-                      min={1}
-                      max={90}
-                      value={_days}
-                      onChange={handleSliderChange}
-                      disabled={!_licenseRadio}
-                      valueLabelDisplay="auto"
-                      aria-labelledby="discrete-slider-custom"
-                    />
-                    <Typography
-                      variant="body2"
-                      component="p"
-                      color="textSecondary"
-                      gutterBottom
-                    >
-                      {"License expiration in "} {_days} {" days"}
-                    </Typography>
-                  </Box>
-                }
-              />
-            </RadioGroup>
-            <Button
-              variant="outlined"
-              color="inherit"
-              className={classes.button}
-              disabled={!_buyRadio && !_licenseRadio}
-            >
-              {_buyRadio
-                ? "BUY NFT"
-                : `BUY LICENSE FOR ${(
-                    Number(formatUnits(_nft.dailyLicensePrice.toString())) *
-                    _days
-                  )
-                    .toString()
-                    .substr(0, 6)} Ξ`}
-            </Button>
-          </FormControl>
+                        <Slider
+                          defaultValue={1}
+                          step={1}
+                          min={1}
+                          max={90}
+                          value={_days}
+                          onChange={handleSliderChange}
+                          disabled={!_licenseRadio}
+                          valueLabelDisplay="auto"
+                          aria-labelledby="discrete-slider-custom"
+                        />
+                        <Typography
+                          variant="body2"
+                          component="p"
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          {"License expiration in "} {_days} {" days"}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                )}
+              </RadioGroup>
+              {Number(_nft.sellingPrice) !== 0 &&
+                Number(_nft.dailyLicensePrice) !== 0 && (
+                  <Button
+                    variant="outlined"
+                    color="inherit"
+                    className={classes.button}
+                    disabled={!_buyRadio && !_licenseRadio}
+                    onClick={handleBuy}
+                  >
+                    {_buyRadio
+                      ? "BUY NFT"
+                      : `BUY LICENSE FOR ${(
+                          Number(
+                            formatUnits(_nft.dailyLicensePrice.toString())
+                          ) * _days
+                        )
+                          .toString()
+                          .substr(0, 6)} Ξ`}
+                  </Button>
+                )}
+            </FormControl>
+          )}
         </>
       )}
       {!_nft && (

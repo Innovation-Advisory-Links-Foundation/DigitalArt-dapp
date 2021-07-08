@@ -8,6 +8,11 @@ export type SafeMintTxInputData = {
   dailyLicensePrice: string
 }
 
+export type BuyNFTInputData = {
+  id: number
+  txValue: number
+}
+
 export type NFT = {
   id: number
   sellingPrice: number

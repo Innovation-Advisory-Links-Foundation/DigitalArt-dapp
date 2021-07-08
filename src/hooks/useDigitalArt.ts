@@ -3,7 +3,7 @@ import { DigitalArtContextType } from "../context/DigitalArtContext"
 import { DigitalArt } from "../types/DigitalArt"
 import { retrieveNfts } from "../utils/smartContract"
 import { onNFTMinted } from "../utils/listeners"
-import { SafeMintTxInputData, NFT } from "../types/Blockchain"
+import { SafeMintTxInputData, NFT, BuyNFTInputData } from "../types/Blockchain"
 
 // Hook for handling the custom Metamask provider.
 export default function useDigitalArtContext(
@@ -79,9 +79,26 @@ export default function useDigitalArtContext(
     }
   }
 
+  /**
+   * Buy the NFT.
+   * @param data <BuyNFTInputData> - Necessary data to buy a NFT.
+   */
+  async function buyNFT(data: BuyNFTInputData) {
+    if (digitalArt) {
+      // Send the tx.
+      const tx = await digitalArt.contract
+        .connect(digitalArt.signer)
+        .purchaseNFT(data.id, { value: data.txValue })
+
+      // Wait for tx confirmation.
+      await tx.wait()
+    }
+  }
+
   return {
     _signerAddress,
     _nfts,
-    mintNFT
+    mintNFT,
+    buyNFT
   }
 }
