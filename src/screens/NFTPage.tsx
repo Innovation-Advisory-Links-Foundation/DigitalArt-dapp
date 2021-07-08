@@ -24,6 +24,7 @@ import BackdropProgress from "../components/BackdropProgress"
 import useBooleanCondition from "../hooks/useBooleanCondition"
 import ScrollableContainer from "../components/ScrollableContainer"
 import { formatUnits } from "ethers/lib/utils"
+import { BigNumber } from "ethers"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -122,7 +123,9 @@ export default function NFTPage() {
   const providerContext = React.useContext(
     ProviderContext
   ) as DigitalArtContextType
-  const { _signerAddress, buyNFT } = providerContext
+  const { _signerAddress, buyNFT, buyLicense } = providerContext
+
+  // TODO -> try to check if a user already has a valid license on the nft.
 
   React.useEffect(() => {
     startProgress()
@@ -149,17 +152,35 @@ export default function NFTPage() {
 
   const handleBuy = async () => {
     startProgress()
+
     if (_nft && _buyRadio) {
       // Send tx.
       await buyNFT({
         id,
-        txValue: _nft.sellingPrice
+        txValue: BigNumber.from(_nft.sellingPrice)
       })
 
       stopProgress()
 
       // Redirect. TODO -> redirect to personal nft owner page where he/she can resell or make licensable the nft.
       history.replace("/market")
+    } else {
+      if (_nft && _licenseRadio) {
+        const bgDays = BigNumber.from(_days)
+        const bgDailyLicensePrice = BigNumber.from(_nft.dailyLicensePrice)
+
+        // Send tx.
+        await buyLicense({
+          id,
+          days: _days,
+          txValue: bgDailyLicensePrice.mul(bgDays)
+        })
+
+        stopProgress()
+
+        // Redirect. TODO -> redirect to personal license page?.
+        history.replace("/market")
+      }
     }
   }
 

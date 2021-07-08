@@ -3,7 +3,12 @@ import { DigitalArtContextType } from "../context/DigitalArtContext"
 import { DigitalArt } from "../types/DigitalArt"
 import { retrieveNfts } from "../utils/smartContract"
 import { onNFTMinted } from "../utils/listeners"
-import { SafeMintTxInputData, NFT, BuyNFTInputData } from "../types/Blockchain"
+import {
+  SafeMintTxInputData,
+  NFT,
+  BuyNFTInputData,
+  BuyLicenseInputData
+} from "../types/Blockchain"
 
 // Hook for handling the custom Metamask provider.
 export default function useDigitalArtContext(
@@ -13,6 +18,8 @@ export default function useDigitalArtContext(
   const [_signerAddress, setSignerAddress] = React.useState<string>("")
   // All NFTs minted and recorded in the smart contract.
   const [_nfts, setNfts] = React.useState<Array<NFT>>([])
+
+  // TODO -> signer address not update when change metamask account?
 
   React.useEffect(() => {
     ;(async function () {
@@ -95,10 +102,27 @@ export default function useDigitalArtContext(
     }
   }
 
+  /**
+   * Buy a license of usage for a specific NFT.
+   * @param data <BuyLicenseInputData> - Necessary data to buy a license for a specific NFT.
+   */
+  async function buyLicense(data: BuyLicenseInputData) {
+    if (digitalArt) {
+      // Send the tx.
+      const tx = await digitalArt.contract
+        .connect(digitalArt.signer)
+        .purchaseLicense(data.id, data.days, { value: data.txValue })
+
+      // Wait for tx confirmation.
+      await tx.wait()
+    }
+  }
+
   return {
     _signerAddress,
     _nfts,
     mintNFT,
-    buyNFT
+    buyNFT,
+    buyLicense
   }
 }

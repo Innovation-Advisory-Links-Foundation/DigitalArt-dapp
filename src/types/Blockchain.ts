@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers"
+
 export type SafeMintTxInputData = {
   title: string
   description: string
@@ -10,7 +12,13 @@ export type SafeMintTxInputData = {
 
 export type BuyNFTInputData = {
   id: number
-  txValue: number
+  txValue: BigNumber
+}
+
+export type BuyLicenseInputData = {
+  id: number
+  days: number
+  txValue: BigNumber
 }
 
 export type NFT = {

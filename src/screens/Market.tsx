@@ -62,12 +62,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     card: {
       margin: theme.spacing(1),
-      paddingBottom: theme.spacing(1),
+      paddingBottom: theme.spacing(4),
       border: "1px solid black",
       width: "33vw",
       height: "68vh",
       [theme.breakpoints.down("sm")]: {
-        height: "72vh",
+        height: "68vh",
         width: "86vw"
       }
     },
