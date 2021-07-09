@@ -5,48 +5,37 @@ import { Contract } from "ethers"
  * @returns Array<NFT> - Array containing the NFTs.
  */
 export async function retrieveNfts(contract: Contract) {
-  // Filter to 'Transfer' smart contract event.
-  const filter = contract.filters.Transfer()
-  const transferEvents = await contract.queryFilter(filter)
+  // Filter to 'TokenMinted' smart contract event.
+  const filter = contract.filters.TokenMinted()
+  const tokenMintedEvents = await contract.queryFilter(filter)
 
   const nfts: any[] = []
-  const last = transferEvents.length
+  const last = tokenMintedEvents.length
 
   for (
-    let i = transferEvents.length - 1;
-    i >= transferEvents.length - last;
+    let i = tokenMintedEvents.length - 1;
+    i >= tokenMintedEvents.length - last;
     i--
   ) {
     // Get event info.
-    const eventArgs = transferEvents[i].args as any
-
-    // Get NFT blockchain data.
-    const nftData = await contract.idToNFT(eventArgs.tokenId.toNumber())
-
+    const eventArgs = tokenMintedEvents[i].args as any
+    console.log(eventArgs)
     // Get NFT IPFS metadata.
-    const response = await fetch(nftData.uri)
+    const response = await fetch(eventArgs.tokenURI)
 
     // Push the NFT data.
-    const nft = { ...nftData, metadata: { ...(await response.json()) } }
+    const nft = {
+      id: eventArgs.tokenId,
+      sellingPrice: eventArgs.sellingPrice,
+      dailyLicensePrice: eventArgs.dailyLicensePrice,
+      uri: eventArgs.tokenURI,
+      artist: eventArgs.owner,
+      owner: eventArgs.owner,
+      metadata: { ...(await response.json()) }
+    }
+
     nfts.push(nft)
   }
 
   return nfts
-}
-
-/**
- * Retrieve an NFT with a given id.
- * @param contract <Contract> - The DigitalArt smart contract istance.
- * @param id <number> - The unique identifier of the NFT.
- * @returns NFT - The NFT data.
- */
-export async function retrieveNft(contract: Contract, id: number) {
-  // Read blockchain smart contract data.
-  let nftData = await contract.idToNFT(id)
-
-  // Get metadata from IPFS uri.
-  const response = await fetch(nftData.uri)
-
-  const nft = { ...nftData, metadata: { ...(await response.json()) } }
-  return nft
 }

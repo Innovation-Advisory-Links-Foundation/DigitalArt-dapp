@@ -19,8 +19,7 @@ export default function useDigitalArtContext(
   // All NFTs minted and recorded in the smart contract.
   const [_nfts, setNfts] = React.useState<Array<NFT>>([])
 
-  // TODO -> signer address not update when change metamask account?
-
+  console.log(_nfts)
   React.useEffect(() => {
     ;(async function () {
       // Check if MetaMask is properly connected, so we get a Signer object for the current account.
