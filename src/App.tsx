@@ -121,27 +121,6 @@ function App() {
         // Set current Signer.
         const signer = provider.getSigner((await provider.listAccounts())[0])
 
-        // Listener for account change.
-        injectedProvider.on(
-          "accountsChanged",
-          async (accounts: Array<string>) => {
-            // Current MetaMask account is located to 0 index.
-            if (_digitalArt && accounts[0] !== _digitalArt.signer._address) {
-              // Update current signer.
-              setDigitalArt({
-                ..._digitalArt,
-                signer: provider.getSigner(accounts[0])
-              })
-            }
-          }
-        )
-
-        // Listener for network change.
-        injectedProvider.on("chainChanged", (id: string) => {
-          // TODO -> check chain id for smart contract switch.
-          window.location.reload()
-        })
-
         // State update.
         setDigitalArt({
           injectedProvider,
@@ -159,6 +138,27 @@ function App() {
 
     connectToBlockchain()
   }, [])
+
+  // Listener for account change.
+  _digitalArt?.injectedProvider.on(
+    "accountsChanged",
+    async (accounts: Array<string>) => {
+      // Current MetaMask account is located to 0 index.
+      if (_digitalArt && accounts[0] !== _digitalArt.signer._address) {
+        // Update current signer.
+        setDigitalArt({
+          ..._digitalArt,
+          signer: _digitalArt.provider.getSigner(accounts[0])
+        })
+      }
+    }
+  )
+
+  // Listener for network change.
+  _digitalArt?.injectedProvider.on("chainChanged", (id: string) => {
+    // TODO -> check chain id for smart contract switch.
+    window.location.reload()
+  })
 
   return (
     <ThemeContextType.Provider value={themeContext}>
