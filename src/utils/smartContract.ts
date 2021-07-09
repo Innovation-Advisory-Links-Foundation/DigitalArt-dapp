@@ -19,18 +19,21 @@ export async function retrieveNfts(contract: Contract) {
   ) {
     // Get event info.
     const eventArgs = tokenMintedEvents[i].args as any
-    console.log(eventArgs)
+
+    // Get token updated data.
+    const tokenData = await contract.idToNFT(eventArgs.tokenId)
+
     // Get NFT IPFS metadata.
     const response = await fetch(eventArgs.tokenURI)
 
     // Push the NFT data.
     const nft = {
       id: eventArgs.tokenId,
-      sellingPrice: eventArgs.sellingPrice,
-      dailyLicensePrice: eventArgs.dailyLicensePrice,
+      sellingPrice: tokenData.sellingPrice,
+      dailyLicensePrice: tokenData.dailyLicensePrice,
       uri: eventArgs.tokenURI,
-      artist: eventArgs.owner,
-      owner: eventArgs.owner,
+      artist: tokenData.artist,
+      owner: tokenData.owner,
       metadata: { ...(await response.json()) }
     }
 
@@ -38,4 +41,60 @@ export async function retrieveNfts(contract: Contract) {
   }
 
   return nfts
+}
+
+/**
+ * Retrieve every Token Purchased event from the smart contract events.
+ * @param contract <Contract> - The DigitalArt smart contract istance.
+ * @returns Array<TokenPurchasedEvent> - Array containing the data from the Token Purchased events.
+ */
+export async function retrieveTokenPurchasedEvent(contract: Contract) {
+  // Filter to 'TokenPurchased' smart contract event.
+  const filter = contract.filters.TokenPurchased()
+  const tokenPurchasedEvents = await contract.queryFilter(filter)
+
+  const purchases: any[] = []
+  const last = tokenPurchasedEvents.length
+
+  for (
+    let i = tokenPurchasedEvents.length - 1;
+    i >= tokenPurchasedEvents.length - last;
+    i--
+  ) {
+    // Get event info.
+    const purchase = tokenPurchasedEvents[i].args as any
+
+    // Push the data.
+    purchases.push(purchase)
+  }
+
+  return purchases
+}
+
+/**
+ * Retrieve every License Purchased event from the smart contract events.
+ * @param contract <Contract> - The DigitalArt smart contract istance.
+ * @returns Array<TokenPurchasedEvent> - Array containing the data from the License Purchased events.
+ */
+export async function retrieveLicensePurchasedEvent(contract: Contract) {
+  // Filter to 'LicensePurchased' smart contract event.
+  const filter = contract.filters.LicensePurchased()
+  const licensePurchasedEvents = await contract.queryFilter(filter)
+
+  const purchases: any[] = []
+  const last = licensePurchasedEvents.length
+
+  for (
+    let i = licensePurchasedEvents.length - 1;
+    i >= licensePurchasedEvents.length - last;
+    i--
+  ) {
+    // Get event info.
+    const purchase = licensePurchasedEvents[i].args as any
+
+    // Push the data.
+    purchases.push(purchase)
+  }
+
+  return purchases
 }

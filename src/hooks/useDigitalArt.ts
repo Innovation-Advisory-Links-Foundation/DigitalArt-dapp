@@ -1,7 +1,11 @@
 import React from "react"
 import { DigitalArtContextType } from "../context/DigitalArtContext"
 import { DigitalArt } from "../types/DigitalArt"
-import { retrieveNfts } from "../utils/smartContract"
+import {
+  retrieveLicensePurchasedEvent,
+  retrieveNfts,
+  retrieveTokenPurchasedEvent
+} from "../utils/smartContract"
 import { onNFTMinted } from "../utils/listeners"
 import {
   SafeMintTxInputData,
@@ -19,7 +23,6 @@ export default function useDigitalArtContext(
   // All NFTs minted and recorded in the smart contract.
   const [_nfts, setNfts] = React.useState<Array<NFT>>([])
 
-  console.log(_nfts)
   React.useEffect(() => {
     ;(async function () {
       // Check if MetaMask is properly connected, so we get a Signer object for the current account.
@@ -117,11 +120,49 @@ export default function useDigitalArtContext(
     }
   }
 
+  /**
+   * Return the 'TokenPurchased' smart contract event for a specific NFT.
+   * @param tokenId <number> - Unique identifier of the NFT.
+   */
+  async function getTokenPurchasedEventsForNFT(tokenId: number) {
+    if (digitalArt) {
+      // Get the TokenPurchased events.
+      const purchases = await retrieveTokenPurchasedEvent(digitalArt.contract)
+
+      // Filter for token id.
+      const nftPurchases = purchases.filter(
+        (purchase) => Number(purchase.tokenId) === tokenId
+      )
+
+      return nftPurchases
+    }
+  }
+
+  /**
+   * Return the 'LicensePurchased' smart contract event for a specific NFT.
+   * @param tokenId <number> - Unique identifier of the NFT.
+   */
+  async function getLicensePurchasedEventsForNFT(tokenId: number) {
+    if (digitalArt) {
+      // Get the LicensesPurchased events.
+      const purchases = await retrieveLicensePurchasedEvent(digitalArt.contract)
+
+      // Filter for token id.
+      const licensesPurchases = purchases.filter(
+        (purchase) => Number(purchase.tokenId) === tokenId
+      )
+
+      return licensesPurchases
+    }
+  }
+
   return {
     _signerAddress,
     _nfts,
     mintNFT,
     buyNFT,
-    buyLicense
+    buyLicense,
+    getTokenPurchasedEventsForNFT,
+    getLicensePurchasedEventsForNFT
   }
 }

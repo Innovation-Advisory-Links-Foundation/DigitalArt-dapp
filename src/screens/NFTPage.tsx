@@ -189,8 +189,7 @@ export default function NFTPage() {
       {_nft && (
         <>
           <img src={_nft.metadata.image} className={classes.image} alt=""></img>
-
-          <Typography variant="h3" component="h1">
+          <Typography variant="h4" component="h1">
             {_nft.metadata.title}
           </Typography>
 

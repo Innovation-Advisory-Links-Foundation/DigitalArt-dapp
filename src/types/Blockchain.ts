@@ -38,3 +38,18 @@ export type NFTMetadata = {
   year: number
   image: string
 }
+
+export type TokenPurchasedEvent = {
+  tokenId: number
+  oldOwner: string
+  newOwner: string
+  price: number
+}
+
+export type LicensePurchasedEvent = {
+  tokenId: number
+  durationInDays: number
+  price: number
+  endDateInMillis: number
+  sender: string
+}

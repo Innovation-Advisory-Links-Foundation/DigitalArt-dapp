@@ -13,6 +13,8 @@ export type DigitalArtContextType = {
   mintNFT: (data: SafeMintTxInputData) => Promise<any>
   buyNFT: (data: BuyNFTInputData) => Promise<any>
   buyLicense: (data: BuyLicenseInputData) => Promise<any>
+  getTokenPurchasedEventsForNFT: (tokenId: number) => Promise<any>
+  getLicensePurchasedEventsForNFT: (tokenId: number) => Promise<any>
 }
 
 export default React.createContext<DigitalArtContextType | null>(null)
