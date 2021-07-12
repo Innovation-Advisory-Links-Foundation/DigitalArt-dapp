@@ -81,6 +81,33 @@ function App() {
   const providerContext = useProviderContext(_digitalArt)
   const signer = _digitalArt ? _digitalArt.signer : undefined
 
+  // Handles the main logic for backward navigation through different pages.
+  const navigateBack = () => {
+    const numberRegex = /\d/
+
+    if (
+      numberRegex.test(location.pathname) &&
+      location.pathname.includes("/collection/")
+    ) {
+      history.replace(signer && signer._address ? "/collection" : "/")
+    }
+
+    if (
+      numberRegex.test(location.pathname) &&
+      location.pathname.includes("/market/")
+    ) {
+      history.replace(signer && signer._address ? "/market" : "/")
+    }
+
+    if (location.pathname === "/collection") {
+      history.replace(signer && signer._address ? "/market" : "/")
+    }
+
+    if (location.pathname === "/artworks") {
+      history.replace(signer && signer._address ? "/market" : "/")
+    }
+  }
+
   // Explicit connect request from user w/ MetaMask.
   const connectYourWallet = async () => {
     if (_digitalArt) {
@@ -189,9 +216,7 @@ function App() {
                         <IconButton
                           edge="start"
                           className={classes.leftAppBarButton}
-                          onClick={() =>
-                            history.replace(signer._address ? "/market" : "/")
-                          }
+                          onClick={navigateBack}
                         >
                           <ArrowBackRoundedIcon />
                         </IconButton>

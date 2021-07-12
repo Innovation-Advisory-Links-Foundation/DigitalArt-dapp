@@ -10,7 +10,6 @@ import {
   Grid,
   Collapse,
   IconButton,
-  Avatar,
   Divider,
   List,
   ListItem,
@@ -133,9 +132,6 @@ export default function ArtworksPage() {
   >(new Map<number, Array<LicensePurchasedEvent>>())
   // Expandable card.
   const [_expanded, setExpanded, unsetExpanded] = useBooleanCondition()
-
-  // React router dom providers.
-  const history = useHistory()
 
   // Custom providers.
   const providerContext = React.useContext(
