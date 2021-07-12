@@ -119,7 +119,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default function Artworks() {
+export default function ArtworksPage() {
   // Material UI Theming.
   const classes = useStyles()
 
@@ -288,18 +288,18 @@ export default function Artworks() {
 
                           <Collapse in={_expanded} timeout="auto" unmountOnExit>
                             <CardContent>
-                              {_tokenPurchases.get(Number(nft.id)) &&
-                                _licensePurchases.get(Number(nft.id)) &&
-                                [
-                                  ..._tokenPurchases.get(Number(nft.id))!,
-                                  ..._licensePurchases.get(Number(nft.id))!
-                                ]
-                                  .sort(
-                                    (a: any, b: any) =>
-                                      b.timestamp - a.timestamp
-                                  )
-                                  .map((purchasedEvent: any, i: number) => (
-                                    <List className={classes.list}>
+                              <List className={classes.list}>
+                                {_tokenPurchases.get(Number(nft.id)) &&
+                                  _licensePurchases.get(Number(nft.id)) &&
+                                  [
+                                    ..._tokenPurchases.get(Number(nft.id))!,
+                                    ..._licensePurchases.get(Number(nft.id))!
+                                  ]
+                                    .sort(
+                                      (a: any, b: any) =>
+                                        b.timestamp - a.timestamp
+                                    )
+                                    .map((purchasedEvent: any, i: number) => (
                                       <ListItem
                                         alignItems="center"
                                         key={purchasedEvent.tokenId}
@@ -326,6 +326,7 @@ export default function Artworks() {
                                           </a>
                                         </ListItemAvatar>
                                         <ListItemText
+                                          style={{ minWidth: "100%" }}
                                           primary={
                                             <Typography
                                               component="span"
@@ -347,6 +348,25 @@ export default function Artworks() {
                                             >
                                               <Typography
                                                 component="span"
+                                                variant="body1"
+                                                className={classes.inline}
+                                                color="textPrimary"
+                                              >
+                                                {`For`}{" "}
+                                                <b style={{ color: "green" }}>
+                                                  {" "}
+                                                  {`${formatUnits(
+                                                    purchasedEvent.price
+                                                  )}`}{" "}
+                                                  Ξ
+                                                </b>
+                                                {purchasedEvent.sender &&
+                                                purchasedEvent.sender.length > 0
+                                                  ? ` x ${purchasedEvent.durationInDays} days`
+                                                  : ""}
+                                              </Typography>
+                                              <Typography
+                                                component="span"
                                                 variant="body2"
                                                 className={classes.inline}
                                                 color="textPrimary"
@@ -357,31 +377,16 @@ export default function Artworks() {
                                                   )
                                                 ).toLocaleString()}`}
                                               </Typography>
-                                              <Typography
-                                                component="span"
-                                                variant="body2"
-                                                className={classes.inline}
-                                                color="textPrimary"
-                                              >
-                                                {`For ${formatUnits(
-                                                  purchasedEvent.price
-                                                )} Ξ`}
-                                                {purchasedEvent.sender &&
-                                                purchasedEvent.sender.length > 0
-                                                  ? ` x ${purchasedEvent.durationInDays} days`
-                                                  : ""}
-                                              </Typography>
                                             </Box>
                                           }
                                         />
+                                        <Divider
+                                          variant="inset"
+                                          style={{ backgroundColor: "black" }}
+                                        />
                                       </ListItem>
-                                      <Divider
-                                        variant="inset"
-                                        component="li"
-                                        style={{ backgroundColor: "black" }}
-                                      />
-                                    </List>
-                                  ))}
+                                    ))}
+                              </List>
                             </CardContent>
                           </Collapse>
                         </CardContent>

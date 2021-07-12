@@ -28,15 +28,18 @@ import {
 import MenuIcon from "@material-ui/icons/Menu"
 import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded"
 import Sidebar from "./components/SidebarMenu"
-import Artworks from "./screens/Artworks"
+import ArtworksPage from "./screens/Artworks"
 import MintNFTPage from "./screens/MintNFT"
-import NFTPage from "./screens/NFTPage"
 import { Contract, ethers } from "ethers"
 import config from "./config"
 import IPFS from "ipfs-api"
 import { DigitalArt } from "./types/DigitalArt"
 import DigitalArtContextType from "./context/DigitalArtContext"
 import useBooleanCondition from "./hooks/useBooleanCondition"
+import MarketableNFTPage from "./screens/MarketableNFT"
+import CollectionPage from "./screens/Collection"
+import PurchasedNFTPage from "./screens/PurchasedNFT"
+import LicensesPage from "./screens/Licenses"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -215,17 +218,37 @@ function App() {
                       <Redirect to={{ pathname: "/" }} />
                     )}
                   </Route>
-                  <Route path="/market/:id">
+                  <Route path="/collection/:id">
                     {signer._address ? (
-                      <NFTPage />
+                      <PurchasedNFTPage />
                     ) : (
                       <Redirect to={{ pathname: "/" }} />
                     )}
                   </Route>
-
+                  <Route path="/market/:id">
+                    {signer._address ? (
+                      <MarketableNFTPage />
+                    ) : (
+                      <Redirect to={{ pathname: "/" }} />
+                    )}
+                  </Route>
+                  <Route path="/licenses">
+                    {signer._address ? (
+                      <LicensesPage />
+                    ) : (
+                      <Redirect to={{ pathname: "/" }} />
+                    )}
+                  </Route>
+                  <Route path="/collection">
+                    {signer._address ? (
+                      <CollectionPage />
+                    ) : (
+                      <Redirect to={{ pathname: "/" }} />
+                    )}
+                  </Route>
                   <Route path="/artworks">
                     {signer._address ? (
-                      <Artworks />
+                      <ArtworksPage />
                     ) : (
                       <Redirect to={{ pathname: "/" }} />
                     )}

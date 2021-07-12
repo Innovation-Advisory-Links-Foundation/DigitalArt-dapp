@@ -11,8 +11,11 @@ import {
   Typography
 } from "@material-ui/core"
 import React from "react"
-import PhotoLibraryIcon from "@material-ui/icons/PhotoLibrary"
 import ExitToAppIcon from "@material-ui/icons/ExitToApp"
+import StoreIcon from "@material-ui/icons/Store"
+import CollectionsIcon from "@material-ui/icons/Collections"
+import CropOriginalIcon from "@material-ui/icons/CropOriginal"
+import DescriptionIcon from "@material-ui/icons/Description"
 import Identicon from "react-identicons"
 import { Link } from "react-router-dom"
 import ProviderContext, {
@@ -63,12 +66,36 @@ export default function Sidebar({ open, onClose }: Props) {
         </div>
         <Divider />
         <List>
+          <Link to="/market" className={classes.link}>
+            <ListItem onClick={onClose} button>
+              <ListItemIcon>
+                <StoreIcon />
+              </ListItemIcon>
+              <ListItemText primary="Marketplace" />
+            </ListItem>
+          </Link>
           <Link to="/artworks" className={classes.link}>
             <ListItem onClick={onClose} button>
               <ListItemIcon>
-                <PhotoLibraryIcon />
+                <CropOriginalIcon />
               </ListItemIcon>
               <ListItemText primary="Your artworks" />
+            </ListItem>
+          </Link>
+          <Link to="/collection" className={classes.link}>
+            <ListItem onClick={onClose} button>
+              <ListItemIcon>
+                <CollectionsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Your collection" />
+            </ListItem>
+          </Link>
+          <Link to="/licenses" className={classes.link}>
+            <ListItem onClick={onClose} button>
+              <ListItemIcon>
+                <DescriptionIcon />
+              </ListItemIcon>
+              <ListItemText primary="Your licenses" />
             </ListItem>
           </Link>
           <ListItem button>
