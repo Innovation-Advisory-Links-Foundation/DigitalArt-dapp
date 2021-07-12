@@ -7,8 +7,15 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
+  Grid,
+  Collapse,
+  IconButton,
+  Avatar,
   Divider,
-  Grid
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText
 } from "@material-ui/core"
 import createStyles from "@material-ui/core/styles/createStyles"
 import makeStyles from "@material-ui/core/styles/makeStyles"
@@ -23,6 +30,10 @@ import {
   TokenPurchasedEvent
 } from "../types/Blockchain"
 import { formatUnits } from "ethers/lib/utils"
+import useBooleanCondition from "../hooks/useBooleanCondition"
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
+import clsx from "clsx"
+import Identicon from "react-identicons"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,12 +73,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     card: {
       margin: theme.spacing(1),
-      paddingBottom: theme.spacing(4),
       border: "1px solid black",
       width: "33vw",
-      height: "68vh",
       [theme.breakpoints.down("sm")]: {
-        height: "68vh",
         width: "86vw"
       }
     },
@@ -83,6 +91,30 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     cardText: {
       textAlign: "left"
+    },
+    expand: {
+      transform: "rotate(0deg)",
+      marginLeft: "auto",
+      transition: theme.transitions.create("transform", {
+        duration: theme.transitions.duration.shortest
+      })
+    },
+    expandOpen: {
+      transform: "rotate(180deg)"
+    },
+    list: {
+      width: "100%",
+      maxWidth: "90%",
+      backgroundColor: theme.palette.background.paper,
+      padding: 0
+    },
+    inline: {
+      display: "inline"
+    },
+    expandedContent: {
+      display: "flex",
+      flex: 1,
+      flexDirection: "column"
     }
   })
 )
@@ -99,6 +131,8 @@ export default function Artworks() {
   const [_licensePurchases, setLicensePurchases] = React.useState<
     Map<number, Array<LicensePurchasedEvent>>
   >(new Map<number, Array<LicensePurchasedEvent>>())
+  // Expandable card.
+  const [_expanded, setExpanded, unsetExpanded] = useBooleanCondition()
 
   // React router dom providers.
   const history = useHistory()
@@ -149,108 +183,232 @@ export default function Artworks() {
         {"YOUR ARTWORKS"}
       </Typography>
       {_nfts.length > 0 ? (
-        <Grid
-          container
-          direction="row"
-          justify="space-between"
-          alignItems="center"
-        >
-          {_nfts
-            .sort((a: NFT, b: NFT) => a.id - b.id)
-            .filter((nft: NFT) => nft.artist === _signerAddress)
-            .map((nft: NFT, i: number) => (
-              <Box key={i} className={classes.cardsBox}>
-                <Card className={classes.card}>
-                  <CardActionArea>
-                    <CardMedia
-                      component="img"
-                      alt={nft.metadata.title}
-                      image={nft.metadata.image}
-                      title={nft.metadata.title}
-                      className={classes.cardImage}
-                      onClick={() => history.push(`/market/${nft.id}`)}
-                    />
-                    <CardContent className={classes.cardContent}>
-                      <Box onClick={() => history.push(`/market/${nft.id}`)}>
-                        <Typography
-                          variant="h5"
-                          component="h2"
-                          className={classes.cardText}
-                        >
-                          {nft.metadata.title}
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          component="h3"
-                          className={classes.cardText}
-                          style={{ color: "green" }}
-                        >
-                          {_tokenPurchases.get(Number(nft.id))
-                            ? Number(
-                                formatUnits(
-                                  _tokenPurchases
-                                    .get(Number(nft.id))!
-                                    .reduce(
-                                      (
-                                        acc: number,
-                                        event: TokenPurchasedEvent
-                                      ) => {
-                                        if (event) acc += event.price
-                                        return acc
-                                      },
-                                      0
+        <>
+          {_nfts.filter((a: NFT) => a.artist === _signerAddress).length > 0 ? (
+            <Grid
+              container
+              direction="row"
+              justify="space-between"
+              alignItems="center"
+            >
+              {_nfts
+                .sort((a: NFT, b: NFT) => a.id - b.id)
+                .filter((a: NFT) => a.artist === _signerAddress)
+                .map((nft: NFT, i: number) => (
+                  <Box key={i} className={classes.cardsBox}>
+                    <Card className={classes.card}>
+                      <CardActionArea>
+                        <CardMedia
+                          component="img"
+                          alt={nft.metadata.title}
+                          image={nft.metadata.image}
+                          title={nft.metadata.title}
+                          className={classes.cardImage}
+                        />
+                        <CardContent className={classes.cardContent}>
+                          <Box>
+                            <Typography
+                              variant="h5"
+                              component="h2"
+                              className={classes.cardText}
+                            >
+                              {nft.metadata.title}
+                            </Typography>
+                            <Typography
+                              variant="h6"
+                              component="h3"
+                              className={classes.cardText}
+                              style={{ color: "green" }}
+                            >
+                              {_tokenPurchases.get(Number(nft.id))
+                                ? Number(
+                                    formatUnits(
+                                      _tokenPurchases
+                                        .get(Number(nft.id))!
+                                        .reduce(
+                                          (
+                                            acc: number,
+                                            event: TokenPurchasedEvent
+                                          ) => {
+                                            if (event) acc += event.price
+                                            return acc
+                                          },
+                                          0
+                                        )
+                                        .toString()
                                     )
-                                    .toString()
-                                )
-                              )
-                            : "0"}{" "}
-                          {"Ξ"} /{" "}
-                          {_licensePurchases.get(Number(nft.id))
-                            ? Number(
-                                formatUnits(
-                                  _licensePurchases
-                                    .get(Number(nft.id))!
-                                    .reduce(
-                                      (
-                                        acc: number,
-                                        event: LicensePurchasedEvent
-                                      ) => {
-                                        if (event) acc += event.price
-                                        return acc
-                                      },
-                                      0
+                                  )
+                                : "0"}{" "}
+                              {"Ξ"} /{" "}
+                              {_licensePurchases.get(Number(nft.id))
+                                ? Number(
+                                    formatUnits(
+                                      _licensePurchases
+                                        .get(Number(nft.id))!
+                                        .reduce(
+                                          (
+                                            acc: number,
+                                            event: LicensePurchasedEvent
+                                          ) => {
+                                            if (event) acc += event.price
+                                            return acc
+                                          },
+                                          0
+                                        )
+                                        .toString()
                                     )
-                                    .toString()
-                                )
-                              )
-                            : "0"}{" "}
-                          {"Ξ"}
-                        </Typography>
-                      </Box>
-                      <Typography
-                        gutterBottom
-                        variant="body2"
-                        className={classes.cardText}
-                        color="textSecondary"
-                        style={{ padding: 0, fontSize: "0.8rem" }}
-                      >
-                        <i>{"List price / Daily license price"}</i>
-                      </Typography>
+                                  )
+                                : "0"}{" "}
+                              {"Ξ"}
+                            </Typography>
+                          </Box>
+                          <Typography
+                            gutterBottom
+                            variant="body2"
+                            className={classes.cardText}
+                            color="textSecondary"
+                            style={{ padding: 0, fontSize: "0.8rem" }}
+                          >
+                            <i>{"Reselling / Licensing total earnings"}</i>
+                          </Typography>
+                          <IconButton
+                            className={clsx(classes.expand, {
+                              [classes.expandOpen]: _expanded
+                            })}
+                            onClick={_expanded ? unsetExpanded : setExpanded}
+                            aria-expanded={_expanded}
+                            aria-label="show more"
+                            disabled={
+                              !_tokenPurchases.get(Number(nft.id))?.length &&
+                              !_licensePurchases.get(Number(nft.id))?.length
+                            }
+                          >
+                            <ExpandMoreIcon />
+                          </IconButton>
 
-                      <Divider style={{ backgroundColor: "black" }} />
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Box>
-            ))}
-        </Grid>
+                          <Collapse in={_expanded} timeout="auto" unmountOnExit>
+                            <CardContent>
+                              {_tokenPurchases.get(Number(nft.id)) &&
+                                _licensePurchases.get(Number(nft.id)) &&
+                                [
+                                  ..._tokenPurchases.get(Number(nft.id))!,
+                                  ..._licensePurchases.get(Number(nft.id))!
+                                ]
+                                  .sort(
+                                    (a: any, b: any) =>
+                                      b.timestamp - a.timestamp
+                                  )
+                                  .map((purchasedEvent: any, i: number) => (
+                                    <List className={classes.list}>
+                                      <ListItem
+                                        alignItems="center"
+                                        key={purchasedEvent.tokenId}
+                                      >
+                                        <ListItemAvatar>
+                                          <a
+                                            href={`https://rinkeby.etherscan.io/address/${
+                                              purchasedEvent.sender &&
+                                              purchasedEvent.sender.length > 0
+                                                ? purchasedEvent.sender
+                                                : purchasedEvent.newOwner
+                                            }`}
+                                            target="blank"
+                                          >
+                                            <Identicon
+                                              string={
+                                                purchasedEvent.sender &&
+                                                purchasedEvent.sender.length > 0
+                                                  ? purchasedEvent.sender
+                                                  : purchasedEvent.newOwner
+                                              }
+                                              size={32}
+                                            />
+                                          </a>
+                                        </ListItemAvatar>
+                                        <ListItemText
+                                          primary={
+                                            <Typography
+                                              component="span"
+                                              variant="h6"
+                                              className={classes.inline}
+                                              color="textPrimary"
+                                            >
+                                              {purchasedEvent.sender &&
+                                              purchasedEvent.sender.length > 0
+                                                ? `Bought a License!`
+                                                : `Bought the NFT!`}
+                                            </Typography>
+                                          }
+                                          secondary={
+                                            <Box
+                                              className={
+                                                classes.expandedContent
+                                              }
+                                            >
+                                              <Typography
+                                                component="span"
+                                                variant="body2"
+                                                className={classes.inline}
+                                                color="textPrimary"
+                                              >
+                                                {` At ${new Date(
+                                                  Number(
+                                                    purchasedEvent.timestamp
+                                                  )
+                                                ).toLocaleString()}`}
+                                              </Typography>
+                                              <Typography
+                                                component="span"
+                                                variant="body2"
+                                                className={classes.inline}
+                                                color="textPrimary"
+                                              >
+                                                {`For ${formatUnits(
+                                                  purchasedEvent.price
+                                                )} Ξ`}
+                                                {purchasedEvent.sender &&
+                                                purchasedEvent.sender.length > 0
+                                                  ? ` x ${purchasedEvent.durationInDays} days`
+                                                  : ""}
+                                              </Typography>
+                                            </Box>
+                                          }
+                                        />
+                                      </ListItem>
+                                      <Divider
+                                        variant="inset"
+                                        component="li"
+                                        style={{ backgroundColor: "black" }}
+                                      />
+                                    </List>
+                                  ))}
+                            </CardContent>
+                          </Collapse>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Box>
+                ))}
+            </Grid>
+          ) : (
+            <Box className={classes.emptyListBox}>
+              <Typography className={classes.emptyListText} variant="h4">
+                No Artworks!
+              </Typography>
+              <Typography className={classes.emptyListText} variant="subtitle1">
+                Make your craft and mint your unique NFT to see it shown on this
+                page!
+              </Typography>
+            </Box>
+          )}
+        </>
       ) : (
         <Box className={classes.emptyListBox}>
           <Typography className={classes.emptyListText} variant="h4">
             No NFTs!
           </Typography>
           <Typography className={classes.emptyListText} variant="subtitle1">
-            Mint your own NFT by clicking the button below!
+            Mint your own NFT to see it shown on this page!
           </Typography>
         </Box>
       )}
