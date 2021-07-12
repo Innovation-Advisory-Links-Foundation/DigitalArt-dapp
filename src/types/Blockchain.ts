@@ -44,6 +44,7 @@ export type TokenPurchasedEvent = {
   oldOwner: string
   newOwner: string
   price: number
+  timestamp: number
 }
 
 export type LicensePurchasedEvent = {
@@ -52,4 +53,5 @@ export type LicensePurchasedEvent = {
   price: number
   endDateInMillis: number
   sender: string
+  timestamp: number
 }
