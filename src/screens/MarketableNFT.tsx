@@ -53,6 +53,9 @@ const useStyles = makeStyles((theme: Theme) =>
     emptyListText: {
       color: theme.palette.text.hint
     },
+    purchaseTitle: {
+      marginTop: theme.spacing(1)
+    },
     ownershipContainerBox: {
       width: "95%",
       display: "flex",
@@ -162,8 +165,8 @@ export default function MarketableNFTPage() {
 
       stopProgress()
 
-      // Redirect. TODO -> redirect to personal nft owner page where he/she can resell or make licensable the nft.
-      history.replace("/market")
+      // Redirect.
+      history.replace(`/collection/${_nft.id}`)
     } else {
       if (_nft && _licenseRadio) {
         const bgDays = BigNumber.from(_days)
@@ -178,8 +181,8 @@ export default function MarketableNFTPage() {
 
         stopProgress()
 
-        // Redirect. TODO -> redirect to personal license page?.
-        history.replace("/market")
+        // Redirect.
+        history.replace(`/licenses/${_nft.id}`)
       }
     }
   }
@@ -256,8 +259,12 @@ export default function MarketableNFTPage() {
                     className={classes.formControlLabel}
                     label={
                       <Box className={classes.labelBox}>
-                        <Typography variant="h6" component="h6">
-                          {"BUY NFT "}
+                        <Typography
+                          variant="body1"
+                          component="h6"
+                          className={classes.purchaseTitle}
+                        >
+                          <b>{"BUY NFT "}</b>
                         </Typography>
 
                         <Typography variant="body1" component="p">
@@ -288,8 +295,12 @@ export default function MarketableNFTPage() {
                     className={classes.formControlLabel}
                     label={
                       <Box className={classes.labelBox}>
-                        <Typography variant="h6" component="h6">
-                          {"GET A LICENSE"}
+                        <Typography
+                          variant="body1"
+                          component="h6"
+                          className={classes.purchaseTitle}
+                        >
+                          <b>{"GET A LICENSE"}</b>
                         </Typography>
                         <Typography variant="body1" component="p">
                           {"Price (daily) "}{" "}
@@ -334,8 +345,8 @@ export default function MarketableNFTPage() {
                   />
                 )}
               </RadioGroup>
-              {Number(_nft.sellingPrice) !== 0 &&
-                Number(_nft.dailyLicensePrice) !== 0 && (
+              {Number(_nft.sellingPrice) !== 0 ||
+                (Number(_nft.dailyLicensePrice) !== 0 && (
                   <Button
                     variant="outlined"
                     color="inherit"
@@ -343,17 +354,17 @@ export default function MarketableNFTPage() {
                     disabled={!_buyRadio && !_licenseRadio}
                     onClick={handleBuy}
                   >
-                    {_buyRadio
-                      ? "BUY NFT"
-                      : `BUY LICENSE FOR ${(
-                          Number(
-                            formatUnits(_nft.dailyLicensePrice.toString())
-                          ) * _days
-                        )
-                          .toString()
-                          .substr(0, 6)} Ξ`}
+                    {_buyRadio && "BUY NFT"}
+                    {_licenseRadio &&
+                      `BUY LICENSE FOR ${(
+                        Number(formatUnits(_nft.dailyLicensePrice.toString())) *
+                        _days
+                      )
+                        .toString()
+                        .substr(0, 6)} Ξ`}
+                    {!_buyRadio && !_licenseRadio ? "..." : ""}
                   </Button>
-                )}
+                ))}
             </FormControl>
           )}
         </>
