@@ -94,6 +94,13 @@ function App() {
 
     if (
       numberRegex.test(location.pathname) &&
+      location.pathname.includes("/licenses/")
+    ) {
+      history.replace(signer && signer._address ? "/licenses" : "/")
+    }
+
+    if (
+      numberRegex.test(location.pathname) &&
       location.pathname.includes("/market/")
     ) {
       history.replace(signer && signer._address ? "/market" : "/")
@@ -104,6 +111,9 @@ function App() {
     }
 
     if (location.pathname === "/artworks") {
+      history.replace(signer && signer._address ? "/market" : "/")
+    }
+    if (location.pathname === "/licenses") {
       history.replace(signer && signer._address ? "/market" : "/")
     }
   }
