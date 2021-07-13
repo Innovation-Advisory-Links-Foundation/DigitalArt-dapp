@@ -48,3 +48,69 @@ export function onNFTMinted(
   // Event bind.
   return contract.off.bind(contract, "TokenMinted", getNFT)
 }
+
+/**
+ * Bind a listener to the DigitalArt smart contract NFT selling price update event.
+ * @param contract <Contract> - The DigitalArt smart contract istance.
+ * @param listener <(NFT) => void> - A listener for NFT selling price update event (SellingPriceUpdated).
+ * @returns
+ */
+export function onSellingPriceUpdate(
+  contract: Contract,
+  listener: (tokenId: BigNumber, newSellingPrice: BigNumber) => void
+): () => void {
+  /**
+   * Prepare a function for updating the state when there is a change in the NFT selling price.
+   * @param tokenId <BigNumber> - BigNumber representation of the NFT unique identifier.
+   * @param oldSellingPrice <BigNumber> - BigNumber representation of the NFT old selling price.
+   * @param newSellingPrice <BigNumber> - BigNumber representation of the NFT new selling price.
+   */
+  const getNewSellingPrice = async (
+    tokenId: BigNumber,
+    oldSellingPrice: BigNumber,
+    newSellingPrice: BigNumber
+  ) => {
+    listener(tokenId, newSellingPrice)
+  }
+
+  // Set listener handler for SellingPriceUpdated event.
+  contract.on("SellingPriceUpdated", getNewSellingPrice)
+
+  // Event bind.
+  return contract.off.bind(contract, "SellingPriceUpdated", getNewSellingPrice)
+}
+
+/**
+ * Bind a listener to the DigitalArt smart contract NFT daily license price update event.
+ * @param contract <Contract> - The DigitalArt smart contract istance.
+ * @param listener <(NFT) => void> - A listener for NFT daily license price update event (DailyLicensePriceUpdated).
+ * @returns
+ */
+export function onDailyLicensePriceUpdate(
+  contract: Contract,
+  listener: (tokenId: BigNumber, newDailyLicensePrice: BigNumber) => void
+): () => void {
+  /**
+   * Prepare a function for updating the state when there is a change in the NFT daily license price.
+   * @param tokenId <BigNumber> - BigNumber representation of the NFT unique identifier.
+   * @param oldDailyLicensePrice <BigNumber> - BigNumber representation of the NFT old daily license price.
+   * @param newDailyLicensePrice <BigNumber> - BigNumber representation of the NFT new daily license price.
+   */
+  const getNewDailyLicensePrice = async (
+    tokenId: BigNumber,
+    oldDailyLicensePrice: BigNumber,
+    newDailyLicensePrice: BigNumber
+  ) => {
+    listener(tokenId, newDailyLicensePrice)
+  }
+
+  // Set listener handler for DailyLicensePriceUpdated event.
+  contract.on("DailyLicensePriceUpdated", getNewDailyLicensePrice)
+
+  // Event bind.
+  return contract.off.bind(
+    contract,
+    "DailyLicensePriceUpdated",
+    getNewDailyLicensePrice
+  )
+}

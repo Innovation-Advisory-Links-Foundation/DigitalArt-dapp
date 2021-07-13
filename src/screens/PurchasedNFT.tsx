@@ -133,7 +133,7 @@ export default function PurchasedNFTPage() {
     setNft(providerContext._nfts.find((nft) => Number(nft.id) === Number(id)))
 
     stopProgress()
-  }, [providerContext._nfts.length > 0])
+  }, [providerContext._nfts])
 
   const handleBuyPriceRadio = () => {
     checkBuyPriceRadio()

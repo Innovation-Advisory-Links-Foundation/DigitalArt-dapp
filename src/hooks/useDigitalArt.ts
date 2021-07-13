@@ -6,7 +6,11 @@ import {
   retrieveNfts,
   retrieveTokenPurchasedEvent
 } from "../utils/smartContract"
-import { onNFTMinted } from "../utils/listeners"
+import {
+  onDailyLicensePriceUpdate,
+  onNFTMinted,
+  onSellingPriceUpdate
+} from "../utils/listeners"
 import {
   SafeMintTxInputData,
   NFT,
@@ -24,7 +28,7 @@ export default function useDigitalArtContext(
   const [_signerAddress, setSignerAddress] = React.useState<string>("")
   // All NFTs minted and recorded in the smart contract.
   const [_nfts, setNfts] = React.useState<Array<NFT>>([])
-
+  console.log(_nfts)
   React.useEffect(() => {
     ;(async function () {
       // Check if MetaMask is properly connected, so we get a Signer object for the current account.
@@ -54,6 +58,48 @@ export default function useDigitalArtContext(
             : [..._nfts]
         )
       })
+    }
+  }, [digitalArt?.signer._address, _nfts])
+
+  // Listen to smart contract selling price update token events.
+  React.useEffect(() => {
+    if (digitalArt) {
+      return onSellingPriceUpdate(
+        digitalArt.contract,
+        (tokenId, newSellingPrice) => {
+          setNfts(
+            _nfts.length === 0
+              ? [..._nfts]
+              : _nfts.map((nft) => {
+                  if (Number(nft.id) === Number(tokenId))
+                    nft.sellingPrice = Number(newSellingPrice)
+
+                  return nft
+                })
+          )
+        }
+      )
+    }
+  }, [digitalArt?.signer._address, _nfts])
+
+  // Listen to smart contract daily license price update token events.
+  React.useEffect(() => {
+    if (digitalArt) {
+      return onDailyLicensePriceUpdate(
+        digitalArt.contract,
+        (tokenId, newDailyLicensePrice) => {
+          setNfts(
+            _nfts.length === 0
+              ? [..._nfts]
+              : _nfts.map((nft) => {
+                  if (Number(nft.id) === Number(tokenId))
+                    nft.dailyLicensePrice = Number(newDailyLicensePrice)
+
+                  return nft
+                })
+          )
+        }
+      )
     }
   }, [digitalArt?.signer._address, _nfts])
 
