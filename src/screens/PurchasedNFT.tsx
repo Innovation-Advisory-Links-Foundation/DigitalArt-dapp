@@ -337,11 +337,28 @@ export default function PurchasedNFTPage() {
                 className={classes.button}
                 disabled={
                   (!_buyPriceRadio && !_licensePriceRadio) ||
-                  (_buyPriceRadio && Number(_newSellingPrice) <= 0) ||
-                  (_licensePriceRadio && Number(_newDailyLicensePrice) <= 0)
+                  (!_newSellingPrice && !_newDailyLicensePrice) ||
+                  (_buyPriceRadio &&
+                    Number(_newSellingPrice) <= 0 &&
+                    Number(_nft.sellingPrice) === 0) ||
+                  (Number(_nft.sellingPrice) > 0 &&
+                    Number(_newSellingPrice) < 0) ||
+                  (_buyPriceRadio &&
+                    Number(_newDailyLicensePrice) <= 0 &&
+                    Number(_nft.dailyLicensePrice) === 0) ||
+                  (Number(_nft.dailyLicensePrice) > 0 &&
+                    Number(_newDailyLicensePrice) < 0)
                 }
                 onClick={handlePriceUpdate}
               >
+                {_buyPriceRadio &&
+                  Number(_nft.sellingPrice) > 0 &&
+                  Number(_newSellingPrice) === 0 &&
+                  "REMOVE FROM SALE"}
+                {_licensePriceRadio &&
+                  Number(_nft.dailyLicensePrice) > 0 &&
+                  Number(_newDailyLicensePrice) === 0 &&
+                  "REMOVE FROM LICENSING"}
                 {_buyPriceRadio &&
                   Number(_nft.sellingPrice) === 0 &&
                   Number(_newSellingPrice) > 0 &&

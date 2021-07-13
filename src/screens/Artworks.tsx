@@ -226,7 +226,8 @@ export default function ArtworksPage() {
                                             acc: number,
                                             event: TokenPurchasedEvent
                                           ) => {
-                                            if (event) acc += event.price
+                                            if (event)
+                                              acc += Number(event.price)
                                             return acc
                                           },
                                           0
@@ -246,7 +247,8 @@ export default function ArtworksPage() {
                                             acc: number,
                                             event: LicensePurchasedEvent
                                           ) => {
-                                            if (event) acc += event.price
+                                            if (event)
+                                              acc += Number(event.price)
                                             return acc
                                           },
                                           0
