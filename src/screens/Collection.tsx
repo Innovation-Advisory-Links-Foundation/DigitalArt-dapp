@@ -120,7 +120,7 @@ export default function CollectionPage() {
   const providerContext = React.useContext(
     ProviderContext
   ) as DigitalArtContextType
-  const { _nfts } = providerContext
+  const { _nfts, _signerAddress } = providerContext
 
   return (
     <ScrollableContainer maxWidth="xl">
@@ -129,9 +129,8 @@ export default function CollectionPage() {
       </Typography>
       {_nfts.length > 0 ? (
         <>
-          {_nfts.filter(
-            (nft: NFT) => nft.sellingPrice > 0 || nft.dailyLicensePrice > 0
-          ).length > 0 ? (
+          {_nfts.filter((nft: NFT) => nft.owner === _signerAddress).length >
+          0 ? (
             <Grid
               container
               direction="row"
@@ -140,10 +139,7 @@ export default function CollectionPage() {
             >
               {_nfts
                 .sort((a: NFT, b: NFT) => a.id - b.id)
-                .filter(
-                  (nft: NFT) =>
-                    nft.sellingPrice > 0 || nft.dailyLicensePrice > 0
-                )
+                .filter((nft: NFT) => nft.owner === _signerAddress)
                 .map((nft: NFT, i: number) => (
                   <Box key={i} className={classes.cardsBox}>
                     <Card className={classes.card}>

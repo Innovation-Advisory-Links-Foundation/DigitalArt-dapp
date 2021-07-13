@@ -3,7 +3,9 @@ import {
   SafeMintTxInputData,
   NFT,
   BuyNFTInputData,
-  BuyLicenseInputData
+  BuyLicenseInputData,
+  UpdateDailyLicensePriceInputData,
+  UpdateSellingPriceInputData
 } from "../types/Blockchain"
 
 // Type for the context object for Digital Art core business logic.
@@ -13,6 +15,10 @@ export type DigitalArtContextType = {
   mintNFT: (data: SafeMintTxInputData) => Promise<any>
   buyNFT: (data: BuyNFTInputData) => Promise<any>
   buyLicense: (data: BuyLicenseInputData) => Promise<any>
+  updateSellingPrice: (data: UpdateSellingPriceInputData) => Promise<any>
+  updateDailyLicensePrice: (
+    data: UpdateDailyLicensePriceInputData
+  ) => Promise<any>
   getTokenPurchasedEventsForNFT: (tokenId: number) => Promise<any>
   getLicensePurchasedEventsForNFT: (tokenId: number) => Promise<any>
 }

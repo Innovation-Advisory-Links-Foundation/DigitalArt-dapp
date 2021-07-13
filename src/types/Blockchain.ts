@@ -55,3 +55,13 @@ export type LicensePurchasedEvent = {
   sender: string
   timestamp: number
 }
+
+export type UpdateSellingPriceInputData = {
+  tokenId: number
+  newSellingPrice: string
+}
+
+export type UpdateDailyLicensePriceInputData = {
+  tokenId: number
+  newDailyLicensePrice: string
+}

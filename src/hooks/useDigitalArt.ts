@@ -11,7 +11,9 @@ import {
   SafeMintTxInputData,
   NFT,
   BuyNFTInputData,
-  BuyLicenseInputData
+  BuyLicenseInputData,
+  UpdateSellingPriceInputData,
+  UpdateDailyLicensePriceInputData
 } from "../types/Blockchain"
 
 // Hook for handling the custom Metamask provider.
@@ -121,6 +123,40 @@ export default function useDigitalArtContext(
   }
 
   /**
+   * Update the selling price for a specific NFT.
+   * @param data <UpdateSellingPriceInputData> - Necessary data to update the selling price for a specific NFT.
+   */
+  async function updateSellingPrice(data: UpdateSellingPriceInputData) {
+    if (digitalArt) {
+      // Send the tx.
+      const tx = await digitalArt.contract
+        .connect(digitalArt.signer)
+        .updateSellingPrice(data.tokenId, data.newSellingPrice)
+
+      // Wait for tx confirmation.
+      await tx.wait()
+    }
+  }
+
+  /**
+   * Update the daily license price for a specific NFT.
+   * @param data <UpdateDailyLicensePriceInputData> - Necessary data to update the daily license price for a specific NFT.
+   */
+  async function updateDailyLicensePrice(
+    data: UpdateDailyLicensePriceInputData
+  ) {
+    if (digitalArt) {
+      // Send the tx.
+      const tx = await digitalArt.contract
+        .connect(digitalArt.signer)
+        .updateDailyLicensePrice(data.tokenId, data.newDailyLicensePrice)
+
+      // Wait for tx confirmation.
+      await tx.wait()
+    }
+  }
+
+  /**
    * Return the 'TokenPurchased' smart contract event for a specific NFT.
    * @param tokenId <number> - Unique identifier of the NFT.
    */
@@ -162,6 +198,8 @@ export default function useDigitalArtContext(
     mintNFT,
     buyNFT,
     buyLicense,
+    updateSellingPrice,
+    updateDailyLicensePrice,
     getTokenPurchasedEventsForNFT,
     getLicensePurchasedEventsForNFT
   }
