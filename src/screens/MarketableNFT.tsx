@@ -57,7 +57,6 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1)
     },
     ownershipContainerBox: {
-      width: "95%",
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
@@ -97,6 +96,25 @@ const useStyles = makeStyles((theme: Theme) =>
     button: {
       width: "95%",
       padding: theme.spacing(2)
+    },
+    cardText: {
+      textAlign: "left"
+    },
+    ownershipBox: {
+      width: "100%",
+      margin: theme.spacing(1),
+      display: "flex"
+    },
+    cardContainer: {
+      display: "flex",
+      flexDirection: "row"
+    },
+    ownerArtistBox: {
+      display: "flex",
+      flex: 1,
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center"
     }
   })
 )
@@ -201,8 +219,22 @@ export default function MarketableNFTPage() {
           </Typography>
 
           <Divider className={classes.divider} />
-          <Box className={classes.ownershipContainerBox}>
-            <Box className={classes.ownershipContentBox}>
+          <Box className={classes.ownershipBox}>
+            <Box className={classes.ownerArtistBox}>
+              <Typography
+                gutterBottom
+                variant="body1"
+                className={classes.cardText}
+                color="textSecondary"
+                style={{
+                  padding: 0,
+                  margin: 0,
+                  fontSize: "0.8rem"
+                }}
+              >
+                {"ARTIST"}
+              </Typography>
+
               <Avatar className={classes.avatar}>
                 <a
                   href={`https://rinkeby.etherscan.io/address/${_nft.artist}`}
@@ -211,19 +243,22 @@ export default function MarketableNFTPage() {
                   <Identicon string={_nft.artist} size={32} />
                 </a>
               </Avatar>
-
-              <Box className={classes.ownershipText}>
-                <Typography variant="body1" component="p" color="textSecondary">
-                  {"ARTIST"}
-                </Typography>
-
-                <Typography variant="body1" component="p">
-                  {_nft.artist.substr(0, 4)} {"..."}{" "}
-                  {_nft.artist.substr(38, 42)}
-                </Typography>
-              </Box>
             </Box>
-            <Box className={classes.ownershipContentBox}>
+            <Box className={classes.ownerArtistBox}>
+              <Typography
+                gutterBottom
+                variant="body1"
+                className={classes.cardText}
+                color="textSecondary"
+                style={{
+                  padding: 0,
+                  margin: 0,
+                  fontSize: "0.8rem"
+                }}
+              >
+                {"OWNER"}
+              </Typography>
+
               <Avatar className={classes.avatar}>
                 <a
                   href={`https://rinkeby.etherscan.io/address/${_nft.owner}`}
@@ -232,18 +267,9 @@ export default function MarketableNFTPage() {
                   <Identicon string={_nft.owner} size={32} />
                 </a>
               </Avatar>
-
-              <Box className={classes.ownershipText}>
-                <Typography variant="body1" component="p" color="textSecondary">
-                  {"OWNER"}
-                </Typography>
-
-                <Typography variant="body1" component="p">
-                  {_nft.owner.substr(0, 4)} {"..."} {_nft.owner.substr(38, 42)}
-                </Typography>
-              </Box>
             </Box>
           </Box>
+
           {_nft.owner !== _signerAddress && (
             <FormControl component="fieldset" className={classes.formControl}>
               <RadioGroup
