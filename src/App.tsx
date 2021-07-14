@@ -106,6 +106,10 @@ function App() {
       history.replace(signer && signer._address ? "/market" : "/")
     }
 
+    if (location.pathname === "/market/mint") {
+      history.replace(signer && signer._address ? "/market" : "/")
+    }
+
     if (location.pathname === "/collection") {
       history.replace(signer && signer._address ? "/market" : "/")
     }
