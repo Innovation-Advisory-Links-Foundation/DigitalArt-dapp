@@ -182,7 +182,7 @@ export default function MarketableNFTPage() {
         stopProgress()
 
         // Redirect.
-        history.replace(`/licenses/${_nft.id}`)
+        history.replace(`/licenses`)
       }
     }
   }
@@ -345,26 +345,26 @@ export default function MarketableNFTPage() {
                   />
                 )}
               </RadioGroup>
-              {Number(_nft.sellingPrice) !== 0 ||
-                (Number(_nft.dailyLicensePrice) !== 0 && (
-                  <Button
-                    variant="outlined"
-                    color="inherit"
-                    className={classes.button}
-                    disabled={!_buyRadio && !_licenseRadio}
-                    onClick={handleBuy}
-                  >
-                    {_buyRadio && "BUY NFT"}
-                    {_licenseRadio &&
-                      `BUY LICENSE FOR ${(
-                        Number(formatUnits(_nft.dailyLicensePrice.toString())) *
-                        _days
-                      )
-                        .toString()
-                        .substr(0, 6)} Ξ`}
-                    {!_buyRadio && !_licenseRadio ? "..." : ""}
-                  </Button>
-                ))}
+              {(Number(_nft.sellingPrice) !== 0 ||
+                Number(_nft.dailyLicensePrice) !== 0) && (
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  className={classes.button}
+                  disabled={!_buyRadio && !_licenseRadio}
+                  onClick={handleBuy}
+                >
+                  {_buyRadio && "BUY NFT"}
+                  {_licenseRadio &&
+                    `BUY LICENSE FOR ${(
+                      Number(formatUnits(_nft.dailyLicensePrice.toString())) *
+                      _days
+                    )
+                      .toString()
+                      .substr(0, 6)} Ξ`}
+                  {!_buyRadio && !_licenseRadio ? "..." : ""}
+                </Button>
+              )}
             </FormControl>
           )}
         </>

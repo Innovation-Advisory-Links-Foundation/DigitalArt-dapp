@@ -28,7 +28,7 @@ export default function useDigitalArtContext(
   const [_signerAddress, setSignerAddress] = React.useState<string>("")
   // All NFTs minted and recorded in the smart contract.
   const [_nfts, setNfts] = React.useState<Array<NFT>>([])
-  console.log(_nfts)
+
   React.useEffect(() => {
     ;(async function () {
       // Check if MetaMask is properly connected, so we get a Signer object for the current account.
