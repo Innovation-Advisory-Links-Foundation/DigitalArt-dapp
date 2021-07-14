@@ -9,6 +9,7 @@ import {
 import {
   onDailyLicensePriceUpdate,
   onNFTMinted,
+  onNFTPurchased,
   onSellingPriceUpdate
 } from "../utils/listeners"
 import {
@@ -56,6 +57,25 @@ export default function useDigitalArtContext(
             Number(nft.id) !== Number(_nfts[_nfts.length - 1].id)
             ? [..._nfts, nft]
             : [..._nfts]
+        )
+      })
+    }
+  }, [digitalArt?.signer._address, _nfts])
+
+  // Listen to smart contract selling price update token events.
+  React.useEffect(() => {
+    if (digitalArt) {
+      return onNFTPurchased(digitalArt.contract, (tokenId, newOwner) => {
+        setNfts(
+          _nfts.length === 0
+            ? [..._nfts]
+            : _nfts.map((nft) => {
+                if (Number(nft.id) === Number(tokenId)) nft.sellingPrice = 0
+                nft.dailyLicensePrice = 0
+                nft.owner = newOwner
+
+                return nft
+              })
         )
       })
     }

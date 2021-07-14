@@ -16,8 +16,8 @@ export function onNFTMinted(
    * @param tokenId <BigNumber> - BigNumber representation of the NFT unique identifier.
    * @param sellingPrice <BigNumber> - BigNumber representation of the NFT selling price.
    * @param dailyLicensePrice <BigNumber> - BigNumber representation of the NFT daily license price.
-   * @param tokenURI <BigNumber> - The IPFS url where to retrieve NFT metadata.
-   * @param owner <BigNumber> - The address of the owner of the NFT.
+   * @param tokenURI <string> - The IPFS url where to retrieve NFT metadata.
+   * @param owner <string> - The address of the owner of the NFT.
    */
   const getNFT = async (
     tokenId: BigNumber,
@@ -47,6 +47,41 @@ export function onNFTMinted(
 
   // Event bind.
   return contract.off.bind(contract, "TokenMinted", getNFT)
+}
+
+/**
+ * Bind a listener to the DigitalArt smart contract NFT token purchased event.
+ * @param contract <Contract> - The DigitalArt smart contract istance.
+ * @param listener <(BigNumber) => void> - A listener for NFT token purchased event (TokenPurchased).
+ * @returns
+ */
+export function onNFTPurchased(
+  contract: Contract,
+  listener: (tokenId: BigNumber, newOwner: string) => void
+): () => void {
+  /**
+   * Prepare a function for updating the state when a new NFT is purchased.
+   * @param tokenId <BigNumber> - BigNumber representation of the NFT unique identifier.
+   * @param oldOwner <string> - The address of the old owner of the NFT.
+   * @param newOwner <string> - The address of the new owner of the NFT.
+   * @param price <BigNumber> - BigNumber representation of the amount paid to buy the NFT.
+   * @param timestamp <BigNumber> - Date and time when the tx has been sent.
+   */
+  const getPurchasedTokenId = async (
+    tokenId: BigNumber,
+    oldOwner: string,
+    newOwner: string,
+    price: BigNumber,
+    timestamp: BigNumber
+  ) => {
+    listener(tokenId, newOwner)
+  }
+
+  // Set listener handler for TokenMinted event.
+  contract.on("TokenPurchased", getPurchasedTokenId)
+
+  // Event bind.
+  return contract.off.bind(contract, "TokenPurchased", getPurchasedTokenId)
 }
 
 /**
