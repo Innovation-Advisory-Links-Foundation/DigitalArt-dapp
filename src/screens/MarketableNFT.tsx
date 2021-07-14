@@ -15,7 +15,7 @@ import {
 import createStyles from "@material-ui/core/styles/createStyles"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import { useHistory, useParams } from "react-router-dom"
-import { NFT } from "../types/Blockchain"
+import { LicensePurchasedEvent, NFT } from "../types/Blockchain"
 import ProviderContext, {
   DigitalArtContextType
 } from "../context/DigitalArtContext"
@@ -125,6 +125,10 @@ export default function MarketableNFTPage() {
 
   // State.
   const [_nft, setNft] = React.useState<NFT>()
+  // Licenses.
+  const [_licenses, setLicenses] = React.useState<Array<LicensePurchasedEvent>>(
+    []
+  )
   // Backdrop progress.
   const [_progress = true, startProgress, stopProgress] = useBooleanCondition()
   // Radio buttons.
@@ -133,6 +137,8 @@ export default function MarketableNFTPage() {
     useBooleanCondition()
   // Slider value.
   const [_days, setDays] = React.useState<number>(1)
+  // User License Validity.
+  const [_hasValidLicense, setHasValidLicense] = React.useState<boolean>(false)
 
   // Retrieve the id from the url.
   const { id } = useParams<any>()
@@ -144,7 +150,12 @@ export default function MarketableNFTPage() {
   const providerContext = React.useContext(
     ProviderContext
   ) as DigitalArtContextType
-  const { _signerAddress, buyNFT, buyLicense } = providerContext
+  const {
+    _signerAddress,
+    buyNFT,
+    buyLicense,
+    getLicensePurchasedEventsForNFT
+  } = providerContext
 
   // TODO -> try to check if a user already has a valid license on the nft.
 
@@ -152,9 +163,36 @@ export default function MarketableNFTPage() {
     startProgress()
 
     setNft(providerContext._nfts.find((nft) => Number(nft.id) === Number(id)))
-
-    stopProgress()
   }, [providerContext._nfts.length > 0])
+
+  React.useEffect(() => {
+    const getLicenses = async () => {
+      if (_nft) {
+        const licensesForNFT = await getLicensePurchasedEventsForNFT(
+          Number(_nft.id)
+        )
+
+        const filteredLicenses = licensesForNFT.filter(
+          (licenseEvent: LicensePurchasedEvent) =>
+            licenseEvent.sender === _signerAddress
+        )
+
+        if (filteredLicenses.length > 0) {
+          setHasValidLicense(
+            filteredLicenses.filter(
+              (license: LicensePurchasedEvent) =>
+                Number(license.endDateInMillis) - new Date().getTime()
+            ).length > 0
+          )
+        } else {
+          setHasValidLicense(false)
+        }
+      }
+    }
+
+    getLicenses()
+    stopProgress()
+  }, [providerContext._signerAddress])
 
   const handleBuyRadio = () => {
     checkBuyRadio()
@@ -312,7 +350,7 @@ export default function MarketableNFTPage() {
                     }
                   />
                 )}
-                {Number(_nft.dailyLicensePrice) > 0 && (
+                {Number(_nft.dailyLicensePrice) > 0 && _hasValidLicense && (
                   <FormControlLabel
                     value="value2"
                     control={
@@ -372,7 +410,7 @@ export default function MarketableNFTPage() {
                 )}
               </RadioGroup>
               {(Number(_nft.sellingPrice) !== 0 ||
-                Number(_nft.dailyLicensePrice) !== 0) && (
+                (Number(_nft.dailyLicensePrice) !== 0 && _hasValidLicense)) && (
                 <Button
                   variant="outlined"
                   color="inherit"

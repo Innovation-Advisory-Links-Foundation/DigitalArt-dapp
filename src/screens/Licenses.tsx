@@ -143,7 +143,6 @@ export default function LicensesPage() {
   const { _nfts, _signerAddress, getLicensePurchasedEventsForNFT } =
     providerContext
 
-  // TODO FILTER FOR USER.
   React.useEffect(() => {
     const getLicensePurchases = async () => {
       let licensePurchases: Map<number, Array<LicensePurchasedEvent>> = new Map<
@@ -156,13 +155,13 @@ export default function LicensesPage() {
           Number(_nfts[i].id)
         )
 
-        licensePurchases.set(
-          Number(_nfts[i].id),
-          licensesForNFT.filter(
-            (licenseEvent: LicensePurchasedEvent) =>
-              licenseEvent.sender === _signerAddress
-          )
+        const filteredLicenses = licensesForNFT.filter(
+          (licenseEvent: LicensePurchasedEvent) =>
+            licenseEvent.sender === _signerAddress
         )
+
+        if (filteredLicenses.length > 0)
+          licensePurchases.set(Number(_nfts[i].id), filteredLicenses)
       }
 
       setLicensePurchases(licensePurchases)
@@ -171,6 +170,7 @@ export default function LicensesPage() {
     getLicensePurchases()
   }, [_nfts])
 
+  console.log(_licensePurchases)
   return (
     <ScrollableContainer maxWidth="xl">
       <Typography variant="h5" component="h1" className={classes.title}>
@@ -187,8 +187,7 @@ export default function LicensesPage() {
             .sort((a: NFT, b: NFT) => a.id - b.id)
             .map((nft: NFT, i: number) => (
               <>
-                {_licensePurchases.get(Number(nft.id)) &&
-                _licensePurchases.get(Number(nft.id))?.length! >= 1 ? (
+                {_licensePurchases.get(Number(nft.id)) && (
                   <Box key={i} className={classes.cardsBox}>
                     <Card className={classes.card}>
                       <CardActionArea>
@@ -334,21 +333,6 @@ export default function LicensesPage() {
                         </CardContent>
                       </CardActionArea>
                     </Card>
-                  </Box>
-                ) : (
-                  <Box
-                    className={classes.emptyListBox}
-                    style={{ height: "75vh" }}
-                  >
-                    <Typography className={classes.emptyListText} variant="h4">
-                      No Licenses!
-                    </Typography>
-                    <Typography
-                      className={classes.emptyListText}
-                      variant="subtitle1"
-                    >
-                      Buy your licenses from the market!
-                    </Typography>
                   </Box>
                 )}
               </>
