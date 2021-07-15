@@ -66,6 +66,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+// Form with necessary information for minting a new NFT.
 export default function MintNFTPage() {
   // Material UI Theming.
   const classes = useStyles()

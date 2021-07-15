@@ -240,7 +240,6 @@ function App() {
 
   // MetaMask event listener for network change.
   _digitalArt?.injectedProvider.on("chainChanged", (id: string) => {
-    // TODO -> check chain id for smart contract switch.
     window.location.reload()
   })
 

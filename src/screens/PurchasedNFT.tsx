@@ -13,7 +13,7 @@ import {
 } from "@material-ui/core"
 import createStyles from "@material-ui/core/styles/createStyles"
 import makeStyles from "@material-ui/core/styles/makeStyles"
-import { useHistory, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { NFT } from "../types/Blockchain"
 import ProviderContext, {
   DigitalArtContextType
@@ -126,7 +126,6 @@ export default function PurchasedNFTPage() {
   const { _signerAddress, updateSellingPrice, updateDailyLicensePrice } =
     providerContext
 
-  // TODO -> try to check if a user already has a valid license on the nft.
   React.useEffect(() => {
     startProgress()
 
@@ -162,9 +161,6 @@ export default function PurchasedNFTPage() {
       })
 
       stopProgress()
-
-      // Redirect? Maybe he/she can check the updated price on the same page.
-      // history.replace("/collection")
     } else {
       if (_nft && _licensePriceRadio && Number(_nft.dailyLicensePrice) >= 0) {
         const dailyLicensePriceInWei = Number(

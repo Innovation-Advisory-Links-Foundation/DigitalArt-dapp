@@ -125,10 +125,6 @@ export default function MarketableNFTPage() {
 
   // State.
   const [_nft, setNft] = React.useState<NFT>()
-  // Licenses.
-  const [_licenses, setLicenses] = React.useState<Array<LicensePurchasedEvent>>(
-    []
-  )
   // Backdrop progress.
   const [_progress = true, startProgress, stopProgress] = useBooleanCondition()
   // Radio buttons.
@@ -156,8 +152,6 @@ export default function MarketableNFTPage() {
     buyLicense,
     getLicensePurchasedEventsForNFT
   } = providerContext
-
-  // TODO -> try to check if a user already has a valid license on the nft.
 
   React.useEffect(() => {
     startProgress()
@@ -275,7 +269,7 @@ export default function MarketableNFTPage() {
 
               <Avatar className={classes.avatar}>
                 <a
-                  href={`https://rinkeby.etherscan.io/address/${_nft.artist}`}
+                  href={`https://ropsten.etherscan.io/address/${_nft.artist}`}
                   target="blank"
                 >
                   <Identicon string={_nft.artist} size={32} />
@@ -299,7 +293,7 @@ export default function MarketableNFTPage() {
 
               <Avatar className={classes.avatar}>
                 <a
-                  href={`https://rinkeby.etherscan.io/address/${_nft.owner}`}
+                  href={`https://ropsten.etherscan.io/address/${_nft.owner}`}
                   target="blank"
                 >
                   <Identicon string={_nft.owner} size={32} />
@@ -350,7 +344,7 @@ export default function MarketableNFTPage() {
                     }
                   />
                 )}
-                {Number(_nft.dailyLicensePrice) > 0 && _hasValidLicense && (
+                {Number(_nft.dailyLicensePrice) > 0 && !_hasValidLicense && (
                   <FormControlLabel
                     value="value2"
                     control={

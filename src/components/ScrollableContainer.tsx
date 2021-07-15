@@ -24,6 +24,7 @@ const useStyles = makeStyles(() =>
   })
 )
 
+// Custom reusable scrollable container adaptable for both mobile and desktop devices.
 export default function ScrollableContainer({
   children,
   className,

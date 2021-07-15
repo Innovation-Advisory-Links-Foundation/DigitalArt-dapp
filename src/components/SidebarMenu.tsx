@@ -42,10 +42,15 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: "inherit",
       textDecoration: "none"
+    },
+    divider: {
+      marginLeft: "5%",
+      width: "90%"
     }
   })
 )
 
+// Custom sidebar application menu with shortcut links between the dApp pages.
 export default function Sidebar({ open, onClose }: Props) {
   const classes = useStyles()
 
@@ -74,6 +79,8 @@ export default function Sidebar({ open, onClose }: Props) {
               <ListItemText primary="Marketplace" />
             </ListItem>
           </Link>
+          <Divider className={classes.divider} />
+
           <Link to="/artworks" className={classes.link}>
             <ListItem onClick={onClose} button>
               <ListItemIcon>
@@ -82,6 +89,8 @@ export default function Sidebar({ open, onClose }: Props) {
               <ListItemText primary="Your artworks" />
             </ListItem>
           </Link>
+          <Divider className={classes.divider} />
+
           <Link to="/collection" className={classes.link}>
             <ListItem onClick={onClose} button>
               <ListItemIcon>
@@ -90,6 +99,8 @@ export default function Sidebar({ open, onClose }: Props) {
               <ListItemText primary="Your collection" />
             </ListItem>
           </Link>
+          <Divider className={classes.divider} />
+
           <Link to="/licenses" className={classes.link}>
             <ListItem onClick={onClose} button>
               <ListItemIcon>
@@ -98,6 +109,8 @@ export default function Sidebar({ open, onClose }: Props) {
               <ListItemText primary="Your licenses" />
             </ListItem>
           </Link>
+          <Divider className={classes.divider} />
+
           <ListItem button>
             <ListItemIcon>
               <ExitToAppIcon />
