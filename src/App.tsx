@@ -31,7 +31,7 @@ import Sidebar from "./components/SidebarMenu"
 import ArtworksPage from "./screens/Artworks"
 import MintNFTPage from "./screens/MintNFT"
 import { Contract, ethers } from "ethers"
-import config from "./config"
+import { abi } from "./contracts/DigitalArt.json"
 import IPFS from "ipfs-api"
 import { DigitalArt } from "./types/DigitalArt"
 import DigitalArtContextType from "./context/DigitalArtContext"
@@ -59,6 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+// Bootstrapping component which starts the Digital Art blockchain communication instance.
 function App() {
   // Material UI Theming.
   const classes = useStyles()
@@ -81,10 +82,11 @@ function App() {
   const providerContext = useProviderContext(_digitalArt)
   const signer = _digitalArt ? _digitalArt.signer : undefined
 
-  // Handles the main logic for backward navigation through different pages.
+  // Main logic for backward navigation through different pages.
   const navigateBack = () => {
     const numberRegex = /\d/
 
+    // Purchased NFT page.
     if (
       numberRegex.test(location.pathname) &&
       location.pathname.includes("/collection/")
@@ -92,6 +94,7 @@ function App() {
       history.replace(signer && signer._address ? "/collection" : "/")
     }
 
+    // License page.
     if (
       numberRegex.test(location.pathname) &&
       location.pathname.includes("/licenses/")
@@ -99,6 +102,7 @@ function App() {
       history.replace(signer && signer._address ? "/licenses" : "/")
     }
 
+    // Marketable NFT page.
     if (
       numberRegex.test(location.pathname) &&
       location.pathname.includes("/market/")
@@ -106,23 +110,28 @@ function App() {
       history.replace(signer && signer._address ? "/market" : "/")
     }
 
+    // Mint NFT page.
     if (location.pathname === "/market/mint") {
       history.replace(signer && signer._address ? "/market" : "/")
     }
 
+    // Collection page.
     if (location.pathname === "/collection") {
       history.replace(signer && signer._address ? "/market" : "/")
     }
 
+    // Artworks page.
     if (location.pathname === "/artworks") {
       history.replace(signer && signer._address ? "/market" : "/")
     }
+
+    // Licenses page.
     if (location.pathname === "/licenses") {
       history.replace(signer && signer._address ? "/market" : "/")
     }
   }
 
-  // Explicit connect request from user w/ MetaMask.
+  // Sends an explicit connection request from user to MetaMask.
   const connectYourWallet = async () => {
     if (_digitalArt) {
       const { injectedProvider, provider } = _digitalArt
@@ -165,25 +174,56 @@ function App() {
         // Set current Signer.
         const signer = provider.getSigner((await provider.listAccounts())[0])
 
-        // State update.
-        setDigitalArt({
-          injectedProvider,
-          provider,
-          signer,
-          contract: new Contract(config.contractAddress, config.abi, signer),
-          ipfs: new IPFS({
-            host: config.ipfs.host,
-            port: config.ipfs.port,
-            protocol: config.ipfs.protocol
+        const currentNetwork = await provider.getNetwork()
+
+        // Development.
+        if (currentNetwork.chainId === 31337) {
+          // State update.
+          setDigitalArt({
+            injectedProvider,
+            provider,
+            signer,
+            contract: new Contract(
+              process.env.REACT_APP_DEV_CONTRACT_ADDRESS!,
+              abi,
+              signer
+            ),
+            ipfs: new IPFS({
+              host: process.env.REACT_APP_DEV_IPFS_HOST!,
+              port: process.env.REACT_APP_DEV_IPFS_PORT!,
+              protocol: process.env.REACT_APP_DEV_IPFS_PROTOCOL!
+            })
           })
-        })
+        }
+
+        // Test (Ropsten).
+        if (currentNetwork.chainId === 3) {
+          // State update.
+          setDigitalArt({
+            injectedProvider,
+            provider,
+            signer,
+            contract: new Contract(
+              process.env.REACT_APP_TEST_CONTRACT_ADDRESS!,
+              abi,
+              signer
+            ),
+            ipfs: new IPFS({
+              host: process.env.REACT_APP_TEST_CONTRACT_ADDRESS!,
+              port: process.env.REACT_APP_TEST_CONTRACT_ADDRESS!,
+              protocol: process.env.REACT_APP_TEST_CONTRACT_ADDRESS!
+            })
+          })
+        }
+
+        // TODO -> Prod TBD.
       }
     }
 
     connectToBlockchain()
   }, [])
 
-  // Listener for account change.
+  // MetaMask event listener for account change.
   _digitalArt?.injectedProvider.on(
     "accountsChanged",
     async (accounts: Array<string>) => {
@@ -198,7 +238,7 @@ function App() {
     }
   )
 
-  // Listener for network change.
+  // MetaMask event listener for network change.
   _digitalArt?.injectedProvider.on("chainChanged", (id: string) => {
     // TODO -> check chain id for smart contract switch.
     window.location.reload()
