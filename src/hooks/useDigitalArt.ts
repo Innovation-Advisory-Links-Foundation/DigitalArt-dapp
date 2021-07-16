@@ -165,7 +165,7 @@ export default function useDigitalArtContext(
       // Send the tx.
       const tx = await digitalArt.contract
         .connect(digitalArt.signer)
-        .purchaseNFT(data.id, { value: data.txValue })
+        .purchaseNFT(data.id, Date.now(), { value: data.txValue })
 
       // Wait for tx confirmation.
       await tx.wait()
@@ -181,7 +181,9 @@ export default function useDigitalArtContext(
       // Send the tx.
       const tx = await digitalArt.contract
         .connect(digitalArt.signer)
-        .purchaseLicense(data.id, data.days, { value: data.txValue })
+        .purchaseLicense(data.id, data.days, Date.now(), {
+          value: data.txValue
+        })
 
       // Wait for tx confirmation.
       await tx.wait()

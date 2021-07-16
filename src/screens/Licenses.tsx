@@ -204,9 +204,13 @@ export default function LicensesPage() {
                                         ) -
                                           Number(purchasedEvent.timestamp) >
                                         0
-                                          ? Number(
+                                          ? (Number(
                                               purchasedEvent.endDateInMillis
-                                            ) - Number(purchasedEvent.timestamp)
+                                            ) -
+                                              Number(
+                                                purchasedEvent.timestamp
+                                              )) /
+                                            86400000
                                           : 0}
                                       </Avatar>
                                     </ListItemAvatar>
