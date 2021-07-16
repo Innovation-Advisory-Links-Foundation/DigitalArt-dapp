@@ -13,11 +13,6 @@
     "digital-collectibles",
     "marketplace"
   ],
-  "files": [
-    "TODO",
-    "LICENSE",
-    "README.md"
-  ],
   "homepage": "https://innovation-advisory-links-foundation.github.io/DigitalArt-dapp/",
   "scripts": {
     "start": "react-scripts start",

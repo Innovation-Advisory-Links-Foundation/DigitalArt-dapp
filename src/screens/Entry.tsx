@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+// Asks and handles the request for the connection of the MetaMask wallet.
 export default function EntryPage(props: any) {
   const classes = useStyles()
 
@@ -40,7 +41,7 @@ export default function EntryPage(props: any) {
     <Container className={classes.container} maxWidth="md">
       <img className={classes.logo} src={logo} alt="logo" />
       <Typography className={classes.appName} variant="h6">
-        <b>NFT marketplace with Royalty Redistribution & IPR Management </b>
+        <b>NFT Marketplace with Royalty Redistribution & IPR Management </b>
       </Typography>
       <Button
         className={classes.button}

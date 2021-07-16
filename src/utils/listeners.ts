@@ -60,7 +60,7 @@ export function onNFTPurchased(
   listener: (tokenId: BigNumber, newOwner: string) => void
 ): () => void {
   /**
-   * Prepare a function for updating the state when a new NFT is purchased.
+   * Prepare a function for updating the state when a NFT is purchased.
    * @param tokenId <BigNumber> - BigNumber representation of the NFT unique identifier.
    * @param oldOwner <string> - The address of the old owner of the NFT.
    * @param newOwner <string> - The address of the new owner of the NFT.
@@ -85,12 +85,12 @@ export function onNFTPurchased(
 }
 
 /**
- * Bind a listener to the DigitalArt smart contract NFT selling price update event.
+ * Bind a listener to the DigitalArt smart contract NFT selling price updated event.
  * @param contract <Contract> - The DigitalArt smart contract istance.
- * @param listener <(NFT) => void> - A listener for NFT selling price update event (SellingPriceUpdated).
+ * @param listener <(NFT) => void> - A listener for NFT selling price updated event (SellingPriceUpdated).
  * @returns
  */
-export function onSellingPriceUpdate(
+export function onSellingPriceUpdated(
   contract: Contract,
   listener: (tokenId: BigNumber, newSellingPrice: BigNumber) => void
 ): () => void {
@@ -116,12 +116,12 @@ export function onSellingPriceUpdate(
 }
 
 /**
- * Bind a listener to the DigitalArt smart contract NFT daily license price update event.
+ * Bind a listener to the DigitalArt smart contract NFT daily license price updated event.
  * @param contract <Contract> - The DigitalArt smart contract istance.
- * @param listener <(NFT) => void> - A listener for NFT daily license price update event (DailyLicensePriceUpdated).
+ * @param listener <(NFT) => void> - A listener for NFT daily license price updated event (DailyLicensePriceUpdated).
  * @returns
  */
-export function onDailyLicensePriceUpdate(
+export function onDailyLicensePriceUpdated(
   contract: Contract,
   listener: (tokenId: BigNumber, newDailyLicensePrice: BigNumber) => void
 ): () => void {

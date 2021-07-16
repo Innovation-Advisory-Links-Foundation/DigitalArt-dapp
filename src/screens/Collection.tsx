@@ -56,6 +56,8 @@ const useStyles = makeStyles((theme: Theme) =>
     }
   })
 )
+
+// Shows the NFTs where the user is the owner.
 export default function CollectionPage() {
   // Material UI Theming.
   const classes = useStyles()

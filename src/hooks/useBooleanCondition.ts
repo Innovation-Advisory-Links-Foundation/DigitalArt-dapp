@@ -1,5 +1,6 @@
 import React from "react"
 
+// Custom boolean condition with toggle on/off callbacks.
 export default function useBooleanCondition(
   start: boolean = false
 ): [boolean, () => void, () => void] {

@@ -4,7 +4,6 @@ import {
   Typography,
   Divider,
   Box,
-  Avatar,
   Button,
   Radio,
   FormControl,
@@ -19,12 +18,12 @@ import { LicensePurchasedEvent, NFT } from "../types/Blockchain"
 import ProviderContext, {
   DigitalArtContextType
 } from "../context/DigitalArtContext"
-import Identicon from "react-identicons"
 import BackdropProgress from "../components/BackdropProgress"
 import useBooleanCondition from "../hooks/useBooleanCondition"
 import ScrollableContainer from "../components/ScrollableContainer"
 import { formatUnits } from "ethers/lib/utils"
 import { BigNumber } from "ethers"
+import ArtistOwnerInfoBox from "../components/ArtistOwnerInfoBox"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -56,25 +55,6 @@ const useStyles = makeStyles((theme: Theme) =>
     purchaseTitle: {
       marginTop: theme.spacing(1)
     },
-    ownershipContainerBox: {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      padding: theme.spacing(1)
-    },
-    ownershipContentBox: {
-      display: "flex",
-      flexDirection: "row",
-      padding: theme.spacing(1)
-    },
-    ownershipText: {
-      display: "flex",
-      flexDirection: "column"
-    },
-    avatar: {
-      backgroundColor: "transparent",
-      padding: theme.spacing(1)
-    },
     formGroup: {
       width: "100%"
     },
@@ -99,26 +79,11 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     cardText: {
       textAlign: "left"
-    },
-    ownershipBox: {
-      width: "100%",
-      margin: theme.spacing(1),
-      display: "flex"
-    },
-    cardContainer: {
-      display: "flex",
-      flexDirection: "row"
-    },
-    ownerArtistBox: {
-      display: "flex",
-      flex: 1,
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center"
     }
   })
 )
 
+// Enables the user to purchase the NFT or buy a license on a daily-base fee.
 export default function MarketableNFTPage() {
   // Material UI Theming.
   const classes = useStyles()
@@ -153,12 +118,14 @@ export default function MarketableNFTPage() {
     getLicensePurchasedEventsForNFT
   } = providerContext
 
+  // Retrieve the nfts at the startup.
   React.useEffect(() => {
     startProgress()
 
     setNft(providerContext._nfts.find((nft) => Number(nft.id) === Number(id)))
   }, [providerContext._nfts.length > 0])
 
+  // Retrieve the licenses on the NFT to check if there's a valid license bought from the current connected tx signer.
   React.useEffect(() => {
     const getLicenses = async () => {
       if (_nft) {
@@ -186,8 +153,9 @@ export default function MarketableNFTPage() {
 
     getLicenses()
     stopProgress()
-  }, [providerContext._signerAddress])
+  }, [_nft, providerContext._signerAddress])
 
+  // Radio buttons callbacks.
   const handleBuyRadio = () => {
     checkBuyRadio()
     uncheckLicenseRadio()
@@ -199,10 +167,12 @@ export default function MarketableNFTPage() {
     uncheckBuyRadio()
   }
 
+  // Day picker.
   const handleSliderChange = (event: any, newValue: number | number[]) => {
     setDays(typeof newValue === "number" ? newValue : 1)
   }
 
+  // Sends a tx to buy the NFT or get a license based on the signer selection.
   const handleBuy = async () => {
     startProgress()
 
@@ -251,57 +221,9 @@ export default function MarketableNFTPage() {
           </Typography>
 
           <Divider className={classes.divider} />
-          <Box className={classes.ownershipBox}>
-            <Box className={classes.ownerArtistBox}>
-              <Typography
-                gutterBottom
-                variant="body1"
-                className={classes.cardText}
-                color="textSecondary"
-                style={{
-                  padding: 0,
-                  margin: 0,
-                  fontSize: "0.8rem"
-                }}
-              >
-                {"ARTIST"}
-              </Typography>
-
-              <Avatar className={classes.avatar}>
-                <a
-                  href={`https://ropsten.etherscan.io/address/${_nft.artist}`}
-                  target="blank"
-                >
-                  <Identicon string={_nft.artist} size={32} />
-                </a>
-              </Avatar>
-            </Box>
-            <Box className={classes.ownerArtistBox}>
-              <Typography
-                gutterBottom
-                variant="body1"
-                className={classes.cardText}
-                color="textSecondary"
-                style={{
-                  padding: 0,
-                  margin: 0,
-                  fontSize: "0.8rem"
-                }}
-              >
-                {"OWNER"}
-              </Typography>
-
-              <Avatar className={classes.avatar}>
-                <a
-                  href={`https://ropsten.etherscan.io/address/${_nft.owner}`}
-                  target="blank"
-                >
-                  <Identicon string={_nft.owner} size={32} />
-                </a>
-              </Avatar>
-            </Box>
+          <Box style={{ marginBottom: "8px", width: "100%" }}>
+            <ArtistOwnerInfoBox artist={_nft.artist} owner={_nft.owner} />
           </Box>
-
           {_nft.owner !== _signerAddress && (
             <FormControl component="fieldset" className={classes.formControl}>
               <RadioGroup
@@ -437,7 +359,7 @@ export default function MarketableNFTPage() {
           </Typography>
         </Box>
       )}
-      <BackdropProgress open={providerContext._nfts.length < 0} />
+      <BackdropProgress open={_progress} />
     </ScrollableContainer>
   )
 }

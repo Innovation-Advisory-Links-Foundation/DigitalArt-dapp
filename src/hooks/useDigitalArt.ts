@@ -7,10 +7,10 @@ import {
   retrieveTokenPurchasedEvent
 } from "../utils/smartContract"
 import {
-  onDailyLicensePriceUpdate,
+  onDailyLicensePriceUpdated,
   onNFTMinted,
   onNFTPurchased,
-  onSellingPriceUpdate
+  onSellingPriceUpdated
 } from "../utils/listeners"
 import {
   SafeMintTxInputData,
@@ -21,11 +21,11 @@ import {
   UpdateDailyLicensePriceInputData
 } from "../types/Blockchain"
 
-// Hook for handling the custom Metamask provider.
+// Hook for handling the custom Digital Art context istance.
 export default function useDigitalArtContext(
   digitalArt: DigitalArt | undefined
 ): DigitalArtContextType {
-  // The address of the current signer.
+  // The address of the current tx signer.
   const [_signerAddress, setSignerAddress] = React.useState<string>("")
   // All NFTs minted and recorded in the smart contract.
   const [_nfts, setNfts] = React.useState<Array<NFT>>([])
@@ -40,15 +40,15 @@ export default function useDigitalArtContext(
         // Read data from smart contracts.
         const nfts = await retrieveNfts(digitalArt.contract)
 
-        // State update.
         if (nfts.length > 0) {
+          // State update.
           setNfts(nfts)
         }
       }
     })()
   }, [digitalArt?.signer._address])
 
-  // Listen to smart contract mint token events.
+  // Set up a listener for NFT minted smart contract event.
   React.useEffect(() => {
     if (digitalArt) {
       return onNFTMinted(digitalArt.contract, (nft) => {
@@ -62,7 +62,7 @@ export default function useDigitalArtContext(
     }
   }, [digitalArt?.signer._address, _nfts])
 
-  // Listen to smart contract selling price update token events.
+  // Set up a listener for NFT purchased smart contract event.
   React.useEffect(() => {
     if (digitalArt) {
       return onNFTPurchased(digitalArt.contract, (tokenId, newOwner) => {
@@ -70,10 +70,11 @@ export default function useDigitalArtContext(
           _nfts.length === 0
             ? [..._nfts]
             : _nfts.map((nft) => {
-                if (Number(nft.id) === Number(tokenId)) nft.sellingPrice = 0
-                nft.dailyLicensePrice = 0
-                nft.owner = newOwner
-
+                if (Number(nft.id) === Number(tokenId)) {
+                  nft.sellingPrice = 0
+                  nft.dailyLicensePrice = 0
+                  nft.owner = newOwner
+                }
                 return nft
               })
         )
@@ -81,10 +82,10 @@ export default function useDigitalArtContext(
     }
   }, [digitalArt?.signer._address, _nfts])
 
-  // Listen to smart contract selling price update token events.
+  // Set up a listener for NFT selling price updated smart contract event.
   React.useEffect(() => {
     if (digitalArt) {
-      return onSellingPriceUpdate(
+      return onSellingPriceUpdated(
         digitalArt.contract,
         (tokenId, newSellingPrice) => {
           setNfts(
@@ -102,10 +103,10 @@ export default function useDigitalArtContext(
     }
   }, [digitalArt?.signer._address, _nfts])
 
-  // Listen to smart contract daily license price update token events.
+  // Set up a listener for NFT daily license price updated smart contract event.
   React.useEffect(() => {
     if (digitalArt) {
-      return onDailyLicensePriceUpdate(
+      return onDailyLicensePriceUpdated(
         digitalArt.contract,
         (tokenId, newDailyLicensePrice) => {
           setNfts(
@@ -124,7 +125,7 @@ export default function useDigitalArtContext(
   }, [digitalArt?.signer._address, _nfts])
 
   /**
-   * Upload the image to IPFS and mint the NFT.
+   * Upload the image to IPFS and sends a tx to mint the NFT.
    * @param data <SafeMintTxInputData> - Necessary data to mint a NFT.
    */
   async function mintNFT(data: SafeMintTxInputData) {
@@ -157,7 +158,7 @@ export default function useDigitalArtContext(
   }
 
   /**
-   * Buy the NFT.
+   * Send a tx to buy the NFT.
    * @param data <BuyNFTInputData> - Necessary data to buy a NFT.
    */
   async function buyNFT(data: BuyNFTInputData) {
@@ -173,7 +174,7 @@ export default function useDigitalArtContext(
   }
 
   /**
-   * Buy a license of usage for a specific NFT.
+   * Send a tx to buy a license of usage for a specific NFT.
    * @param data <BuyLicenseInputData> - Necessary data to buy a license for a specific NFT.
    */
   async function buyLicense(data: BuyLicenseInputData) {
@@ -191,7 +192,7 @@ export default function useDigitalArtContext(
   }
 
   /**
-   * Update the selling price for a specific NFT.
+   * Send a tx to update the selling price for a specific NFT.
    * @param data <UpdateSellingPriceInputData> - Necessary data to update the selling price for a specific NFT.
    */
   async function updateSellingPrice(data: UpdateSellingPriceInputData) {
@@ -207,7 +208,7 @@ export default function useDigitalArtContext(
   }
 
   /**
-   * Update the daily license price for a specific NFT.
+   * Send a tx to update the daily license price for a specific NFT.
    * @param data <UpdateDailyLicensePriceInputData> - Necessary data to update the daily license price for a specific NFT.
    */
   async function updateDailyLicensePrice(
@@ -225,7 +226,7 @@ export default function useDigitalArtContext(
   }
 
   /**
-   * Return the 'TokenPurchased' smart contract event for a specific NFT.
+   * Return the 'TokenPurchased' smart contract events for a specific NFT.
    * @param tokenId <number> - Unique identifier of the NFT.
    */
   async function getTokenPurchasedEventsForNFT(tokenId: number) {
@@ -243,7 +244,7 @@ export default function useDigitalArtContext(
   }
 
   /**
-   * Return the 'LicensePurchased' smart contract event for a specific NFT.
+   * Return the 'LicensePurchased' smart contract events for a specific NFT.
    * @param tokenId <number> - Unique identifier of the NFT.
    */
   async function getLicensePurchasedEventsForNFT(tokenId: number) {

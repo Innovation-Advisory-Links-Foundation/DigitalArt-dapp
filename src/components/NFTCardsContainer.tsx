@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core"
 import { NFT } from "../types/Blockchain"
 
+// Custom props type.
 export interface NFTCardsContainerProps {
   children?: ReactNode
   fab?: ReactNode
@@ -56,6 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+// Handles the display of a custom card component based on the provided NFT list.
 export default function NFTCardsContainer({
   children,
   fab,

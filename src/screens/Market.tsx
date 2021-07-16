@@ -11,18 +11,17 @@ import {
   Card,
   CardMedia,
   CardActionArea,
-  CardContent,
-  Avatar
+  CardContent
 } from "@material-ui/core"
 import { useHistory } from "react-router-dom"
 import ProviderContext, {
   DigitalArtContextType
 } from "../context/DigitalArtContext"
 import { NFT } from "../types/Blockchain"
-import Identicon from "react-identicons"
 import { formatUnits } from "ethers/lib/utils"
 import NFTCardsContainer from "../components/NFTCardsContainer"
 import cardStyles from "../styles/cards"
+import ArtistOwnerInfoBox from "../components/ArtistOwnerInfoBox"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,24 +29,11 @@ const useStyles = makeStyles((theme: Theme) =>
       position: "absolute",
       right: theme.spacing(2),
       bottom: theme.spacing(2)
-    },
-    ownershipBox: {
-      marginTop: theme.spacing(2),
-      display: "flex"
-    },
-    ownerArtistBox: {
-      display: "flex",
-      flex: 1,
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center"
-    },
-    avatar: {
-      backgroundColor: "transparent"
     }
   })
 )
 
+// Shows the marketplace where to buy or get a license on the NFTs.
 export default function MarketPage() {
   // Material UI Theming.
   const classes = useStyles()
@@ -62,6 +48,12 @@ export default function MarketPage() {
   ) as DigitalArtContextType
   const { _nfts } = providerContext
 
+  const filteredNFTs =
+    _nfts.length > 0
+      ? _nfts.filter(
+          (nft: NFT) => nft.sellingPrice > 0 || nft.dailyLicensePrice > 0
+        )
+      : []
   return (
     <NFTCardsContainer
       fab={
@@ -74,19 +66,10 @@ export default function MarketPage() {
       }
       pageTitle={"MARKET"}
       errorMessage={"There are no NFTs on sale or licensable yet!"}
-      filteredNFTs={
-        _nfts.length > 0
-          ? _nfts.filter(
-              (nft: NFT) => nft.sellingPrice > 0 || nft.dailyLicensePrice > 0
-            )
-          : []
-      }
+      filteredNFTs={filteredNFTs}
     >
-      {_nfts.length > 0 &&
-        _nfts
-          .filter(
-            (nft: NFT) => nft.sellingPrice > 0 || nft.dailyLicensePrice > 0
-          )
+      {filteredNFTs.length > 0 &&
+        filteredNFTs
           .sort((a: NFT, b: NFT) => a.id - b.id)
           .map((nft: NFT, i: number) => (
             <Box key={i} className={cardsStyles.cardsBox}>
@@ -134,56 +117,7 @@ export default function MarketPage() {
 
                     <Divider style={{ backgroundColor: "black" }} />
 
-                    <Box className={classes.ownershipBox}>
-                      <Box className={classes.ownerArtistBox}>
-                        <Typography
-                          gutterBottom
-                          variant="body1"
-                          className={cardsStyles.cardText}
-                          color="textSecondary"
-                          style={{
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "0.8rem"
-                          }}
-                        >
-                          {"ARTIST"}
-                        </Typography>
-
-                        <Avatar className={classes.avatar}>
-                          <a
-                            href={`https://ropsten.etherscan.io/address/${nft.artist}`}
-                            target="blank"
-                          >
-                            <Identicon string={nft.artist} size={32} />
-                          </a>
-                        </Avatar>
-                      </Box>
-                      <Box className={classes.ownerArtistBox}>
-                        <Typography
-                          gutterBottom
-                          variant="body1"
-                          className={cardsStyles.cardText}
-                          color="textSecondary"
-                          style={{
-                            padding: 0,
-                            margin: 0,
-                            fontSize: "0.8rem"
-                          }}
-                        >
-                          {"OWNER"}
-                        </Typography>
-
-                        <Avatar className={classes.avatar}>
-                          <a
-                            href={`https://ropsten.etherscan.io/address/${nft.owner}`}
-                            target="blank"
-                          >
-                            <Identicon string={nft.owner} size={32} />
-                          </a>
-                        </Avatar>
-                      </Box>
-                    </Box>
+                    <ArtistOwnerInfoBox artist={nft.artist} owner={nft.owner} />
                   </CardContent>
                 </CardActionArea>
               </Card>

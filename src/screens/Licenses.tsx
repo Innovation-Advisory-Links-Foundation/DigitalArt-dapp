@@ -21,7 +21,6 @@ import makeStyles from "@material-ui/core/styles/makeStyles"
 import ProviderContext, {
   DigitalArtContextType
 } from "../context/DigitalArtContext"
-import { useHistory } from "react-router-dom"
 import { LicensePurchasedEvent, NFT } from "../types/Blockchain"
 import { formatUnits } from "ethers/lib/utils"
 import useBooleanCondition from "../hooks/useBooleanCondition"
@@ -91,8 +90,6 @@ export default function LicensesPage() {
 
   // Expandable card.
   const [_expanded, setExpanded, unsetExpanded] = useBooleanCondition()
-  // React router dom providers.
-  const history = useHistory()
 
   // Custom providers.
   const providerContext = React.useContext(
@@ -101,6 +98,7 @@ export default function LicensesPage() {
   const { _nfts, _signerAddress, getLicensePurchasedEventsForNFT } =
     providerContext
 
+  // Get all licenses for the nfts for smart contract events.
   React.useEffect(() => {
     const getLicensePurchases = async () => {
       let licensePurchases: Map<number, Array<LicensePurchasedEvent>> = new Map<
@@ -127,174 +125,189 @@ export default function LicensesPage() {
 
     getLicensePurchases()
   }, [_nfts])
-
-  console.log(_licensePurchases)
   return (
     <NFTCardsContainer
       pageTitle={"LICENSES"}
       errorMessage={"There are no NFTs where to buy licenses from!"}
       filteredNFTs={_nfts.length > 0 ? _nfts : []}
     >
-      {_nfts
-        .sort((a: NFT, b: NFT) => a.id - b.id)
-        .map((nft: NFT, i: number) => (
-          <>
-            {_licensePurchases.get(Number(nft.id)) ? (
-              <Box key={i} className={cardsStyles.cardsBox}>
-                <Card className={cardsStyles.card}>
-                  <CardActionArea>
-                    <CardMedia
-                      component="img"
-                      alt={nft.metadata.title}
-                      image={nft.metadata.image}
-                      title={nft.metadata.title}
-                      className={cardsStyles.cardImage}
-                      onClick={() => history.push(`/market/${nft.id}`)}
-                    />
-                    <CardContent className={cardsStyles.cardContent}>
-                      <Box>
-                        <Typography variant="h5" component="h2">
-                          {nft.metadata.title}
-                        </Typography>
-                        <Typography variant="body1" component="p" gutterBottom>
-                          {nft.metadata.description}
-                        </Typography>
-                      </Box>
-                      <IconButton
-                        className={clsx(classes.expand, {
-                          [classes.expandOpen]: _expanded
-                        })}
-                        onClick={_expanded ? unsetExpanded : setExpanded}
-                        aria-expanded={_expanded}
-                        aria-label="show more"
-                        disabled={
-                          !_licensePurchases.get(Number(nft.id))?.length
-                        }
-                      >
-                        <ExpandMoreIcon />
-                      </IconButton>
+      {_nfts &&
+      _nfts.filter((nft: NFT) => !!_licensePurchases.get(Number(nft.id)))
+        .length > 0 ? (
+        _nfts
+          .sort((a: NFT, b: NFT) => a.id - b.id)
+          .filter((nft: NFT) => !!_licensePurchases.get(Number(nft.id)))
+          .map((nft: NFT, i: number) => (
+            <>
+              {_licensePurchases.get(Number(nft.id)) ? (
+                <Box key={i} className={cardsStyles.cardsBox}>
+                  <Card className={cardsStyles.card}>
+                    <CardActionArea>
+                      <CardMedia
+                        component="img"
+                        alt={nft.metadata.title}
+                        image={nft.metadata.image}
+                        title={nft.metadata.title}
+                        className={cardsStyles.cardImage}
+                      />
+                      <CardContent className={cardsStyles.cardContent}>
+                        <Box>
+                          <Typography variant="h5" component="h2">
+                            {nft.metadata.title}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="p"
+                            gutterBottom
+                          >
+                            {nft.metadata.description}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          className={clsx(classes.expand, {
+                            [classes.expandOpen]: _expanded
+                          })}
+                          onClick={_expanded ? unsetExpanded : setExpanded}
+                          aria-expanded={_expanded}
+                          aria-label="show more"
+                          disabled={
+                            !_licensePurchases.get(Number(nft.id))?.length
+                          }
+                        >
+                          <ExpandMoreIcon />
+                        </IconButton>
 
-                      <Collapse in={_expanded} timeout="auto" unmountOnExit>
-                        <CardContent>
-                          <List className={classes.list}>
-                            {_licensePurchases.get(Number(nft.id)) &&
-                              [..._licensePurchases.get(Number(nft.id))!]
-                                .sort(
-                                  (a: any, b: any) => b.timestamp - a.timestamp
-                                )
-                                .map((purchasedEvent: any, i: number) => (
-                                  <ListItem
-                                    alignItems="center"
-                                    key={purchasedEvent.tokenId}
-                                  >
-                                    <ListItemAvatar>
-                                      <Avatar
-                                        className={
-                                          Number(
-                                            purchasedEvent.endDateInMillis
-                                          ) -
-                                            Number(purchasedEvent.timestamp) >
-                                          0
-                                            ? classes.valid
-                                            : classes.invalid
-                                        }
-                                      >
-                                        {Number(
-                                          purchasedEvent.endDateInMillis
-                                        ) -
-                                          Number(purchasedEvent.timestamp) >
-                                        0
-                                          ? (Number(
-                                              purchasedEvent.endDateInMillis
-                                            ) -
-                                              Number(
-                                                purchasedEvent.timestamp
-                                              )) /
-                                            86400000
-                                          : 0}
-                                      </Avatar>
-                                    </ListItemAvatar>
-
-                                    <ListItemText
-                                      style={{
-                                        minWidth: "100%",
-                                        marginLeft: "16px"
-                                      }}
-                                      primary={
-                                        <Typography
-                                          component="span"
-                                          variant="h6"
-                                          className={classes.inline}
-                                          color="textPrimary"
-                                        >
-                                          {purchasedEvent.sender &&
-                                          purchasedEvent.sender.length > 0
-                                            ? `License #${i + 1}`
-                                            : `Bought the NFT!`}
-                                        </Typography>
-                                      }
-                                      secondary={
-                                        <Box
-                                          className={classes.expandedContent}
-                                        >
-                                          <Typography
-                                            component="span"
-                                            variant="body1"
-                                            className={classes.inline}
-                                            color="textPrimary"
-                                          >
-                                            {`Price`}{" "}
-                                            <b style={{ color: "green" }}>
-                                              {" "}
-                                              {`${formatUnits(
-                                                purchasedEvent.price
-                                              )}`}{" "}
-                                              Ξ
-                                            </b>
-                                          </Typography>
-                                          <Typography
-                                            component="span"
-                                            variant="body2"
-                                            className={classes.inline}
-                                            color="textPrimary"
-                                          >
-                                            {`Expiration ${new Date(
+                        <Collapse in={_expanded} timeout="auto" unmountOnExit>
+                          <CardContent>
+                            <List className={classes.list}>
+                              {_licensePurchases.get(Number(nft.id)) &&
+                                [..._licensePurchases.get(Number(nft.id))!]
+                                  .sort(
+                                    (a: any, b: any) =>
+                                      b.timestamp - a.timestamp
+                                  )
+                                  .map((purchasedEvent: any, i: number) => (
+                                    <Box key={i}>
+                                      <ListItem alignItems="center">
+                                        <ListItemAvatar>
+                                          <Avatar
+                                            className={
                                               Number(
                                                 purchasedEvent.endDateInMillis
-                                              )
-                                            ).toLocaleString()}`}
-                                          </Typography>
-                                        </Box>
-                                      }
-                                    />
-                                    <Divider
-                                      variant="inset"
-                                      style={{ backgroundColor: "black" }}
-                                    />
-                                  </ListItem>
-                                ))}
-                          </List>
-                        </CardContent>
-                      </Collapse>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Box>
-            ) : (
-              <Box className={classes.emptyListBox}>
-                <Typography className={classes.emptyListText} variant="h4">
-                  No Licenses!
-                </Typography>
-                <Typography
-                  className={classes.emptyListText}
-                  variant="subtitle1"
-                >
-                  Buy your license from the market!
-                </Typography>
-              </Box>
-            )}
-          </>
-        ))}
+                                              ) -
+                                                Number(
+                                                  purchasedEvent.timestamp
+                                                ) >
+                                              0
+                                                ? classes.valid
+                                                : classes.invalid
+                                            }
+                                          >
+                                            {Number(
+                                              purchasedEvent.endDateInMillis
+                                            ) -
+                                              Number(purchasedEvent.timestamp) >
+                                            0
+                                              ? (Number(
+                                                  purchasedEvent.endDateInMillis
+                                                ) -
+                                                  Number(
+                                                    purchasedEvent.timestamp
+                                                  )) /
+                                                86400000
+                                              : 0}
+                                          </Avatar>
+                                        </ListItemAvatar>
+
+                                        <ListItemText
+                                          style={{
+                                            minWidth: "90%",
+                                            marginLeft: "16px"
+                                          }}
+                                          primary={
+                                            <Typography
+                                              component="span"
+                                              variant="h6"
+                                              className={classes.inline}
+                                              color="textPrimary"
+                                            >
+                                              {purchasedEvent.sender &&
+                                              purchasedEvent.sender.length > 0
+                                                ? `License #${i + 1}`
+                                                : `Bought the NFT!`}
+                                            </Typography>
+                                          }
+                                          secondary={
+                                            <>
+                                              <Typography
+                                                component="span"
+                                                variant="body1"
+                                                className={classes.inline}
+                                                color="textPrimary"
+                                              >
+                                                {`Price`}{" "}
+                                                <b style={{ color: "green" }}>
+                                                  {" "}
+                                                  {`${formatUnits(
+                                                    purchasedEvent.price
+                                                  )}`}{" "}
+                                                  Ξ
+                                                </b>
+                                              </Typography>
+                                              <Typography
+                                                component="span"
+                                                variant="body2"
+                                                className={classes.inline}
+                                                color="textPrimary"
+                                              >
+                                                {`Expiration ${new Date(
+                                                  Number(
+                                                    purchasedEvent.endDateInMillis
+                                                  )
+                                                ).toLocaleString()}`}
+                                              </Typography>
+                                            </>
+                                          }
+                                        />
+                                        <Divider
+                                          variant="inset"
+                                          style={{ backgroundColor: "black" }}
+                                        />
+                                      </ListItem>
+                                    </Box>
+                                  ))}
+                            </List>
+                          </CardContent>
+                        </Collapse>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Box>
+              ) : (
+                <Box className={classes.emptyListBox}>
+                  <Typography className={classes.emptyListText} variant="h4">
+                    No Licenses!
+                  </Typography>
+                  <Typography
+                    className={classes.emptyListText}
+                    variant="subtitle1"
+                  >
+                    Buy your license from the market!
+                  </Typography>
+                </Box>
+              )}
+            </>
+          ))
+      ) : (
+        <Box className={classes.emptyListBox}>
+          <Typography className={classes.emptyListText} variant="h4">
+            No Licenses!
+          </Typography>
+          <Typography className={classes.emptyListText} variant="subtitle1">
+            There are no NFTs where to purchase a license from!
+          </Typography>
+        </Box>
+      )}
     </NFTCardsContainer>
   )
 }

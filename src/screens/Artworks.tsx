@@ -62,6 +62,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+// Shows the NFT where the signer is the artist.
 export default function ArtworksPage() {
   // Material UI Theming.
   const classes = useStyles()
@@ -89,6 +90,7 @@ export default function ArtworksPage() {
     getLicensePurchasedEventsForNFT
   } = providerContext
 
+  // Get token and licenses purchase from smart contract events.
   React.useEffect(() => {
     const getPurchases = async () => {
       let tokenPurchases: Map<number, Array<TokenPurchasedEvent>> = new Map<

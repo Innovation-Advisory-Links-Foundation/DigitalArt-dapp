@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-// Bootstrapping component which starts the Digital Art blockchain communication instance.
+// Bootstrapping component which starts the Digital Art context instance which handles the blockchain communication.
 function App() {
   // Material UI Theming.
   const classes = useStyles()
@@ -86,7 +86,7 @@ function App() {
   const navigateBack = () => {
     const numberRegex = /\d/
 
-    // Purchased NFT page.
+    // Back to Collection page.
     if (
       numberRegex.test(location.pathname) &&
       location.pathname.includes("/collection/")
@@ -94,7 +94,7 @@ function App() {
       history.replace(signer && signer._address ? "/collection" : "/")
     }
 
-    // License page.
+    // Back to License page.
     if (
       numberRegex.test(location.pathname) &&
       location.pathname.includes("/licenses/")
@@ -102,31 +102,15 @@ function App() {
       history.replace(signer && signer._address ? "/licenses" : "/")
     }
 
-    // Marketable NFT page.
+    // Back to Market page.
     if (
-      numberRegex.test(location.pathname) &&
-      location.pathname.includes("/market/")
+      location.pathname === "/collection" ||
+      location.pathname === "/artworks" ||
+      location.pathname === "/licenses" ||
+      location.pathname === "/market/mint" ||
+      (numberRegex.test(location.pathname) &&
+        location.pathname.includes("/market/"))
     ) {
-      history.replace(signer && signer._address ? "/market" : "/")
-    }
-
-    // Mint NFT page.
-    if (location.pathname === "/market/mint") {
-      history.replace(signer && signer._address ? "/market" : "/")
-    }
-
-    // Collection page.
-    if (location.pathname === "/collection") {
-      history.replace(signer && signer._address ? "/market" : "/")
-    }
-
-    // Artworks page.
-    if (location.pathname === "/artworks") {
-      history.replace(signer && signer._address ? "/market" : "/")
-    }
-
-    // Licenses page.
-    if (location.pathname === "/licenses") {
       history.replace(signer && signer._address ? "/market" : "/")
     }
   }
@@ -216,7 +200,7 @@ function App() {
           })
         }
 
-        // TODO -> Prod TBD.
+        // TODO -> Prod TBD because for now we will use the testnet (Ropsten) only.
       }
     }
 

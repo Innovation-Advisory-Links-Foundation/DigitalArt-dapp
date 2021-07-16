@@ -1,5 +1,6 @@
 import { createStyles, makeStyles, Theme } from "@material-ui/core"
 
+// Custom layout for the Card component which shows the NFT image and data.
 export default makeStyles((theme: Theme) =>
   createStyles({
     cardsBox: {

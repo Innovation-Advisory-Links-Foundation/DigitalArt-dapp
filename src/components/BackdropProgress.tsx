@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-// Custom circular progress component which act as a backdrop progress.
+// Custom circular progress component which act as an asynchronous loader.
 export default function BackdropProgress({
   open,
   onClose

@@ -1,4 +1,5 @@
 import {
+  Avatar,
   createStyles,
   Divider,
   Drawer,
@@ -11,7 +12,6 @@ import {
   Typography
 } from "@material-ui/core"
 import React from "react"
-import ExitToAppIcon from "@material-ui/icons/ExitToApp"
 import StoreIcon from "@material-ui/icons/Store"
 import CollectionsIcon from "@material-ui/icons/Collections"
 import CropOriginalIcon from "@material-ui/icons/CropOriginal"
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
     currentUser: {
       display: "flex",
       flexDirection: "row",
-      justifyContent: "space-around",
+      justifyContent: "space-between",
       alignItems: "center",
       padding: theme.spacing(2)
     },
@@ -50,10 +50,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-// Custom sidebar application menu with shortcut links between the dApp pages.
+// Custom sidebar menu which displays the current signer and the page shortcuts to navigate the dApp.
 export default function Sidebar({ open, onClose }: Props) {
+  // Material UI Theming.
   const classes = useStyles()
 
+  // Custom providers.
   const providerContext = React.useContext(
     ProviderContext
   ) as DigitalArtContextType
@@ -63,7 +65,14 @@ export default function Sidebar({ open, onClose }: Props) {
     <Drawer anchor="left" open={open} onClose={onClose}>
       <div className={classes.list} role="presentation">
         <div className={classes.currentUser}>
-          <Identicon string={_signerAddress} size={32} />
+          <Avatar style={{ backgroundColor: "transparent" }}>
+            <a
+              href={`https://ropsten.etherscan.io/address/${_signerAddress}`}
+              target="blank"
+            >
+              <Identicon string={_signerAddress} size={32} />
+            </a>
+          </Avatar>
           <Typography variant="body1">
             {_signerAddress.substr(0, 12)}...
             {_signerAddress.substr(38)}
@@ -79,7 +88,6 @@ export default function Sidebar({ open, onClose }: Props) {
               <ListItemText primary="Marketplace" />
             </ListItem>
           </Link>
-          <Divider className={classes.divider} />
 
           <Link to="/artworks" className={classes.link}>
             <ListItem onClick={onClose} button>
@@ -89,7 +97,6 @@ export default function Sidebar({ open, onClose }: Props) {
               <ListItemText primary="Your artworks" />
             </ListItem>
           </Link>
-          <Divider className={classes.divider} />
 
           <Link to="/collection" className={classes.link}>
             <ListItem onClick={onClose} button>
@@ -99,7 +106,6 @@ export default function Sidebar({ open, onClose }: Props) {
               <ListItemText primary="Your collection" />
             </ListItem>
           </Link>
-          <Divider className={classes.divider} />
 
           <Link to="/licenses" className={classes.link}>
             <ListItem onClick={onClose} button>
@@ -109,14 +115,6 @@ export default function Sidebar({ open, onClose }: Props) {
               <ListItemText primary="Your licenses" />
             </ListItem>
           </Link>
-          <Divider className={classes.divider} />
-
-          <ListItem button>
-            <ListItemIcon>
-              <ExitToAppIcon />
-            </ListItemIcon>
-            <ListItemText primary="Sign out" />
-          </ListItem>
         </List>
       </div>
     </Drawer>

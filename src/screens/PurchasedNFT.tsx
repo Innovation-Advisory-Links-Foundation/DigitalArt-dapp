@@ -98,6 +98,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+// Enable the owner to update selling and daily license prices.
 export default function PurchasedNFTPage() {
   // Material UI Theming.
   const classes = useStyles()
@@ -199,7 +200,7 @@ export default function PurchasedNFTPage() {
               </Typography>
 
               <Typography
-                variant="h6"
+                variant={_nft.sellingPrice > 0 ? "h6" : "body2"}
                 component="p"
                 style={{
                   textAlign: "center",
@@ -207,7 +208,9 @@ export default function PurchasedNFTPage() {
                 }}
               >
                 <b>
-                  {Number(formatUnits(_nft.sellingPrice.toString()))} {"Ξ"}
+                  {_nft.sellingPrice > 0
+                    ? `${Number(formatUnits(_nft.sellingPrice.toString()))} Ξ`
+                    : "NOT FOR SALE"}
                 </b>
               </Typography>
             </Box>
@@ -217,7 +220,7 @@ export default function PurchasedNFTPage() {
               </Typography>
 
               <Typography
-                variant="h6"
+                variant={_nft.dailyLicensePrice > 0 ? "body1" : "body2"}
                 component="p"
                 style={{
                   textAlign: "center",
@@ -225,8 +228,11 @@ export default function PurchasedNFTPage() {
                 }}
               >
                 <b>
-                  {Number(formatUnits(_nft.dailyLicensePrice.toString()))}
-                  {" Ξ "}
+                  {_nft.dailyLicensePrice > 0
+                    ? `${Number(
+                        formatUnits(_nft.dailyLicensePrice.toString())
+                      )} Ξ`
+                    : "NOT LICENSABLE"}
                 </b>
               </Typography>
             </Box>
@@ -339,7 +345,7 @@ export default function PurchasedNFTPage() {
                     Number(_nft.sellingPrice) === 0) ||
                   (Number(_nft.sellingPrice) > 0 &&
                     Number(_newSellingPrice) < 0) ||
-                  (_buyPriceRadio &&
+                  (_licensePriceRadio &&
                     Number(_newDailyLicensePrice) <= 0 &&
                     Number(_nft.dailyLicensePrice) === 0) ||
                   (Number(_nft.dailyLicensePrice) > 0 &&
@@ -391,7 +397,7 @@ export default function PurchasedNFTPage() {
           </Typography>
         </Box>
       )}
-      <BackdropProgress open={providerContext._nfts.length < 0} />
+      <BackdropProgress open={_progress} />
     </ScrollableContainer>
   )
 }
