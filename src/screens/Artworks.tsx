@@ -32,6 +32,7 @@ import clsx from "clsx"
 import Identicon from "react-identicons"
 import NFTCardsContainer from "../components/NFTCardsContainer"
 import cardStyles from "../styles/cards"
+import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -269,17 +270,39 @@ export default function ArtworksPage() {
                                   <ListItemText
                                     style={{ minWidth: "100%" }}
                                     primary={
-                                      <Typography
-                                        component="span"
-                                        variant="h6"
-                                        className={classes.inline}
-                                        color="textPrimary"
+                                      <Box
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "space-between"
+                                        }}
                                       >
-                                        {purchasedEvent.sender &&
-                                        purchasedEvent.sender.length > 0
-                                          ? `Bought a License!`
-                                          : `Bought the NFT!`}
-                                      </Typography>
+                                        <Typography
+                                          component="span"
+                                          variant="h6"
+                                          className={classes.inline}
+                                          color="textPrimary"
+                                        >
+                                          {purchasedEvent.sender &&
+                                          purchasedEvent.sender.length > 0
+                                            ? `Bought a License!`
+                                            : `Bought the NFT!`}
+                                        </Typography>
+                                        <a
+                                          href={`https://ropsten.etherscan.io/tx/${purchasedEvent.txHash}`}
+                                          target="blank"
+                                          style={{
+                                            alignItems: "center",
+                                            display: "flex"
+                                          }}
+                                        >
+                                          <VerifiedUserIcon
+                                            style={{
+                                              color: "green",
+                                              fontSize: "1.2rem"
+                                            }}
+                                          />
+                                        </a>
+                                      </Box>
                                     }
                                     secondary={
                                       <Box className={classes.expandedContent}>

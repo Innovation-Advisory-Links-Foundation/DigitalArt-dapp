@@ -28,6 +28,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import clsx from "clsx"
 import NFTCardsContainer from "../components/NFTCardsContainer"
 import cardStyles from "../styles/cards"
+import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -125,6 +126,8 @@ export default function LicensesPage() {
 
     getLicensePurchases()
   }, [_nfts])
+
+  console.log(_licensePurchases)
   return (
     <NFTCardsContainer
       pageTitle={"LICENSES"}
@@ -225,17 +228,36 @@ export default function LicensesPage() {
                                             marginLeft: "16px"
                                           }}
                                           primary={
-                                            <Typography
-                                              component="span"
-                                              variant="h6"
-                                              className={classes.inline}
-                                              color="textPrimary"
+                                            <Box
+                                              style={{
+                                                display: "flex",
+                                                justifyContent: "space-between"
+                                              }}
                                             >
-                                              {purchasedEvent.sender &&
-                                              purchasedEvent.sender.length > 0
-                                                ? `License #${i + 1}`
-                                                : `Bought the NFT!`}
-                                            </Typography>
+                                              <Typography
+                                                component="span"
+                                                variant="h6"
+                                                className={classes.inline}
+                                                color="textPrimary"
+                                              >
+                                                {`License #${i + 1}`}
+                                              </Typography>
+                                              <a
+                                                href={`https://ropsten.etherscan.io/tx/${purchasedEvent.txHash}`}
+                                                target="blank"
+                                                style={{
+                                                  alignItems: "center",
+                                                  display: "flex"
+                                                }}
+                                              >
+                                                <VerifiedUserIcon
+                                                  style={{
+                                                    color: "green",
+                                                    fontSize: "1.2rem"
+                                                  }}
+                                                />
+                                              </a>
+                                            </Box>
                                           }
                                           secondary={
                                             <>
@@ -253,19 +275,28 @@ export default function LicensesPage() {
                                                   )}`}{" "}
                                                   Ξ
                                                 </b>
+                                                <br></br>
                                               </Typography>
                                               <Typography
                                                 component="span"
                                                 variant="body2"
                                                 className={classes.inline}
                                                 color="textPrimary"
+                                                gutterBottom
                                               >
-                                                {`Expiration ${new Date(
+                                                {`Expiry ${new Date(
                                                   Number(
                                                     purchasedEvent.endDateInMillis
                                                   )
                                                 ).toLocaleString()}`}
+                                                <br></br>
                                               </Typography>
+                                              <Typography
+                                                component="span"
+                                                variant="body2"
+                                                className={classes.inline}
+                                                color="textPrimary"
+                                              ></Typography>
                                             </>
                                           }
                                         />

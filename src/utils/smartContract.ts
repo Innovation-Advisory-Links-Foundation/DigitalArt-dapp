@@ -1,4 +1,5 @@
 import { Contract } from "ethers"
+import { LicensePurchasedEvent, TokenPurchasedEvent } from "../types/Blockchain"
 
 /**
  * Retrieve every NFT from the smart contract events.
@@ -53,7 +54,7 @@ export async function retrieveTokenPurchasedEvent(contract: Contract) {
   const filter = contract.filters.TokenPurchased()
   const tokenPurchasedEvents = await contract.queryFilter(filter)
 
-  const purchases: any[] = []
+  const purchases: TokenPurchasedEvent[] = []
   const last = tokenPurchasedEvents.length
 
   for (
@@ -65,7 +66,10 @@ export async function retrieveTokenPurchasedEvent(contract: Contract) {
     const purchase = tokenPurchasedEvents[i].args as any
 
     // Push the data.
-    purchases.push(purchase)
+    purchases.push({
+      ...purchase,
+      txHash: tokenPurchasedEvents[i].transactionHash
+    })
   }
 
   return purchases
@@ -81,7 +85,7 @@ export async function retrieveLicensePurchasedEvent(contract: Contract) {
   const filter = contract.filters.LicensePurchased()
   const licensePurchasedEvents = await contract.queryFilter(filter)
 
-  const purchases: any[] = []
+  const purchases: LicensePurchasedEvent[] = []
   const last = licensePurchasedEvents.length
 
   for (
@@ -93,7 +97,10 @@ export async function retrieveLicensePurchasedEvent(contract: Contract) {
     const purchase = licensePurchasedEvents[i].args as any
 
     // Push the data.
-    purchases.push(purchase)
+    purchases.push({
+      ...purchase,
+      txHash: licensePurchasedEvents[i].transactionHash
+    })
   }
 
   return purchases

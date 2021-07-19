@@ -26,6 +26,7 @@ export type TokenPurchasedEvent = {
   newOwner: string
   price: number
   timestamp: number
+  txHash: string
 }
 
 export type LicensePurchasedEvent = {
@@ -35,6 +36,7 @@ export type LicensePurchasedEvent = {
   endDateInMillis: number
   sender: string
   timestamp: number
+  txHash: string
 }
 
 /** TX INPUT DATA */
