@@ -20,6 +20,7 @@ import {
   UpdateSellingPriceInputData,
   UpdateDailyLicensePriceInputData
 } from "../types/Blockchain"
+import webDetect from "../utils/webDetection"
 
 // Hook for handling the custom Digital Art context istance.
 export default function useDigitalArtContext(

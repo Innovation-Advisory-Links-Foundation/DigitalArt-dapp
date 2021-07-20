@@ -30,7 +30,7 @@ import ArrowBackRoundedIcon from "@material-ui/icons/ArrowBackRounded"
 import Sidebar from "./components/SidebarMenu"
 import ArtworksPage from "./screens/Artworks"
 import MintNFTPage from "./screens/MintNFT"
-import { Contract, ethers } from "ethers"
+import { Contract, Wallet, ethers } from "ethers"
 import { abi } from "./contracts/DigitalArt.json"
 import IPFS from "ipfs-api"
 import { DigitalArt } from "./types/DigitalArt"
@@ -167,6 +167,10 @@ function App() {
             injectedProvider,
             provider,
             signer,
+            marketplaceSigner: new Wallet(
+              process.env.REACT_APP_DEV_MARKETPLACE_OWNER_PRIVATE_KEY!,
+              provider
+            ),
             contract: new Contract(
               process.env.REACT_APP_DEV_CONTRACT_ADDRESS!,
               abi,
@@ -187,6 +191,10 @@ function App() {
             injectedProvider,
             provider,
             signer,
+            marketplaceSigner: new Wallet(
+              process.env.REACT_APP_TEST_MARKETPLACE_OWNER_PRIVATE_KEY!,
+              provider
+            ),
             contract: new Contract(
               process.env.REACT_APP_TEST_CONTRACT_ADDRESS!,
               abi,

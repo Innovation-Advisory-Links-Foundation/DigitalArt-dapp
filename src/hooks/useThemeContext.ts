@@ -16,6 +16,9 @@ export default function useThemeContext(): ThemeContextType {
         primary: {
           main: _themeType === "light" ? "#14110F" : "#F4F4F9"
         },
+        secondary: {
+          main: _themeType === "light" ? "#2B50AA" : "#266DD3"
+        },
         background: {
           paper: _themeType === "light" ? "#F4F4F9" : "#34312D"
         }

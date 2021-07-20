@@ -127,7 +127,6 @@ export default function LicensesPage() {
     getLicensePurchases()
   }, [_nfts])
 
-  console.log(_licensePurchases)
   return (
     <NFTCardsContainer
       pageTitle={"LICENSES"}

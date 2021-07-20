@@ -10,7 +10,14 @@ import {
   CardMedia,
   CardActionArea,
   CardContent,
-  IconButton
+  IconButton,
+  Avatar,
+  Collapse,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Button
 } from "@material-ui/core"
 import { useHistory } from "react-router-dom"
 import ProviderContext, {
@@ -25,6 +32,9 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import clsx from "clsx"
 import NFTCardsContainer from "../components/NFTCardsContainer"
 import cardStyles from "../styles/cards"
+import ImageSearchIcon from "@material-ui/icons/ImageSearch"
+import webDetect from "../utils/webDetection"
+import { IPRInfringmentAttempt, MatchingImage } from "../types/WebDetection"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,7 +47,6 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1)
     },
     iprReportText: {
-      color: "darkorange",
       display: "flex",
       alignItems: "center"
     },
@@ -53,6 +62,26 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     expandOpen: {
       transform: "rotate(180deg)"
+    },
+    list: {
+      width: "100%",
+      maxWidth: "90%",
+      backgroundColor: theme.palette.background.paper,
+      padding: 0
+    },
+    inline: {
+      display: "inline"
+    },
+    expandedContent: {
+      display: "flex",
+      flex: 1,
+      flexDirection: "column"
+    },
+    imageLinkIcon: {
+      color: theme.palette.primary.main
+    },
+    sourceLocation: {
+      color: theme.palette.secondary.main
     }
   })
 )
@@ -69,11 +98,38 @@ export default function CollectionPage() {
   // Expandable card.
   const [_expanded, setExpanded, unsetExpanded] = useBooleanCondition()
 
+  // IPR infringment attempts for each NFT.
+  const [_infringmentAttempts, setInfringmentAttempts] = React.useState<
+    Map<number, Array<IPRInfringmentAttempt>>
+  >(new Map<number, Array<IPRInfringmentAttempt>>())
+
   // Custom providers.
   const providerContext = React.useContext(
     ProviderContext
   ) as DigitalArtContextType
   const { _nfts, _signerAddress } = providerContext
+
+  React.useEffect(() => {
+    const provaAPI = async () => {
+      if (_nfts.length > 0) {
+        let attempts = new Map<number, Array<IPRInfringmentAttempt>>()
+        for (let i = 0; i < _nfts.length; i++) {
+          if (_nfts[i].owner === _signerAddress) {
+            const response = await webDetect(_nfts[i].metadata.image)
+
+            if (response && response.pagesWithMatchingImages)
+              attempts.set(
+                Number(_nfts[i].id),
+                response.pagesWithMatchingImages
+              )
+          }
+        }
+        setInfringmentAttempts(attempts)
+      }
+    }
+
+    provaAPI()
+  }, [_nfts])
 
   return (
     <NFTCardsContainer
@@ -135,46 +191,159 @@ export default function CollectionPage() {
 
                     <Divider style={{ backgroundColor: "black" }} />
 
-                    {/* TODO -> implement Google Reverse Image APIs */}
-                    <Box className={classes.iprBox}>
-                      <Box>
-                        <Typography
-                          variant="h6"
-                          component="h3"
-                          className={classes.iprReportText}
-                        >
-                          <WarningIcon className={classes.icon} /> {"10"}{" "}
-                          {"IP Infringements Found!"}
-                        </Typography>
+                    {_infringmentAttempts.get(Number(nft.id)) && (
+                      <>
+                        <Box className={classes.iprBox}>
+                          <Box>
+                            <Typography
+                              variant="h6"
+                              component="h3"
+                              className={classes.iprReportText}
+                              style={{
+                                color:
+                                  _infringmentAttempts.get(Number(nft.id))!
+                                    .length > 0
+                                    ? "darkred"
+                                    : "darkgreen"
+                              }}
+                            >
+                              <WarningIcon className={classes.icon} />{" "}
+                              {_infringmentAttempts.get(Number(nft.id))!.length}{" "}
+                              {"IPR Infringement Attempts!"}
+                            </Typography>
 
-                        <Typography
-                          gutterBottom
-                          variant="body2"
-                          className={cardsStyles.cardText}
-                          color="textSecondary"
-                          style={{
-                            marginLeft: "8px",
-                            fontSize: "0.8rem"
-                          }}
+                            <Typography
+                              gutterBottom
+                              variant="body2"
+                              className={cardsStyles.cardText}
+                              color="textSecondary"
+                              style={{
+                                marginLeft: "8px",
+                                fontSize: "0.8rem"
+                              }}
+                            >
+                              <i>
+                                {new Date(Number(Date.now())).toLocaleString()}
+                              </i>
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        <IconButton
+                          className={clsx(classes.expand, {
+                            [classes.expandOpen]: _expanded
+                          })}
+                          onClick={_expanded ? unsetExpanded : setExpanded}
+                          aria-expanded={_expanded}
+                          aria-label="show more"
+                          disabled={
+                            _infringmentAttempts.get(Number(nft.id))!.length ===
+                            0
+                          }
                         >
-                          <i>{"gg/mm/aaaa - 00:00:00"}</i>
-                        </Typography>
-                      </Box>
-                      <IconButton style={{ padding: 0 }}>
-                        <SyncIcon className={classes.icon} />
-                      </IconButton>
-                    </Box>
-                    <IconButton
-                      className={clsx(classes.expand, {
-                        [classes.expandOpen]: _expanded
-                      })}
-                      onClick={_expanded ? unsetExpanded : setExpanded}
-                      aria-expanded={_expanded}
-                      aria-label="show more"
-                      disabled={true}
-                    >
-                      <ExpandMoreIcon />
-                    </IconButton>
+                          <ExpandMoreIcon />
+                        </IconButton>
+                      </>
+                    )}
+                    <Collapse in={_expanded} timeout="auto" unmountOnExit>
+                      <CardContent>
+                        <List className={classes.list}>
+                          {_infringmentAttempts.get(Number(nft.id)) &&
+                            [..._infringmentAttempts.get(Number(nft.id))!].map(
+                              (
+                                infringmentAttempt: IPRInfringmentAttempt,
+                                i: number
+                              ) => (
+                                <Box key={i}>
+                                  <ListItem
+                                    alignItems="center"
+                                    style={{ padding: 0, margin: 0 }}
+                                  >
+                                    <ListItemText
+                                      style={{
+                                        minWidth: "100%",
+                                        marginLeft: "16px"
+                                      }}
+                                      primary={
+                                        <Box
+                                          style={{
+                                            display: "flex",
+                                            justifyContent: "space-between"
+                                          }}
+                                        >
+                                          <Typography
+                                            component="span"
+                                            variant="h6"
+                                            className={classes.inline}
+                                            color="textPrimary"
+                                          >
+                                            {`Attempt Detected #${i + 1}`}
+                                          </Typography>
+                                          <a
+                                            href={`${
+                                              infringmentAttempt
+                                                .fullMatchingImages.length > 0
+                                                ? infringmentAttempt
+                                                    .fullMatchingImages[0].url
+                                                : infringmentAttempt
+                                                    .partialMatchingImages[0]
+                                                    .url
+                                            }`}
+                                            target="blank"
+                                            style={{
+                                              alignItems: "center",
+                                              display: "flex"
+                                            }}
+                                          >
+                                            <ImageSearchIcon
+                                              className={classes.imageLinkIcon}
+                                            />
+                                          </a>
+                                        </Box>
+                                      }
+                                      secondary={
+                                        <>
+                                          <Box style={{ width: "90%" }}>
+                                            <Typography
+                                              component="span"
+                                              variant="body1"
+                                              className={classes.inline}
+                                              color="textSecondary"
+                                            >
+                                              {"Source: "}
+                                              <b>
+                                                <a
+                                                  className={
+                                                    classes.sourceLocation
+                                                  }
+                                                  href={infringmentAttempt.url}
+                                                  target="blank"
+                                                >
+                                                  {
+                                                    infringmentAttempt.url.split(
+                                                      "/"
+                                                    )[2]
+                                                  }
+                                                </a>
+                                              </b>
+                                            </Typography>
+                                          </Box>
+                                          <Divider
+                                            style={{
+                                              backgroundColor: "black",
+                                              marginTop: "8px"
+                                            }}
+                                          />
+                                        </>
+                                      }
+                                    />
+                                  </ListItem>
+                                </Box>
+                              )
+                            )}
+                        </List>
+                      </CardContent>
+                    </Collapse>
                   </CardContent>
                 </CardActionArea>
               </Card>
