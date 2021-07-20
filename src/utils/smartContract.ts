@@ -1,5 +1,9 @@
 import { Contract } from "ethers"
-import { LicensePurchasedEvent, TokenPurchasedEvent } from "../types/Blockchain"
+import {
+  InfringmentAttemptsRecordedEvent,
+  LicensePurchasedEvent,
+  TokenPurchasedEvent
+} from "../types/Blockchain"
 
 /**
  * Retrieve every NFT from the smart contract events.
@@ -78,7 +82,7 @@ export async function retrieveTokenPurchasedEvent(contract: Contract) {
 /**
  * Retrieve every License Purchased event from the smart contract events.
  * @param contract <Contract> - The DigitalArt smart contract istance.
- * @returns Array<TokenPurchasedEvent> - Array containing the data from the License Purchased events.
+ * @returns Array<LicensePurchasedEvent> - Array containing the data from the License Purchased events.
  */
 export async function retrieveLicensePurchasedEvent(contract: Contract) {
   // Filter to 'LicensePurchased' smart contract event.
@@ -104,4 +108,37 @@ export async function retrieveLicensePurchasedEvent(contract: Contract) {
   }
 
   return purchases
+}
+
+/**
+ * Retrieve every Infringment Attempt Recorded event from the smart contract events.
+ * @param contract <Contract> - The DigitalArt smart contract istance.
+ * @returns Array<InfringmentAttemptsRecordedEvent> - Array containing the data from the Infringment Attempts Recorded events.
+ */
+export async function retrieveInfringmentAttemptsRecordedEvent(
+  contract: Contract
+) {
+  // Filter to 'InfringmentAttemptsRecorded' smart contract event.
+  const filter = contract.filters.InfringmentAttemptsRecorded()
+  const infringmentAttemptsRecordedEvents = await contract.queryFilter(filter)
+
+  const infringmentAttempts: InfringmentAttemptsRecordedEvent[] = []
+  const last = infringmentAttemptsRecordedEvents.length
+
+  for (
+    let i = infringmentAttemptsRecordedEvents.length - 1;
+    i >= infringmentAttemptsRecordedEvents.length - last;
+    i--
+  ) {
+    // Get event info.
+    const attempts = infringmentAttemptsRecordedEvents[i].args as any
+
+    // Push the data.
+    infringmentAttempts.push({
+      ...attempts,
+      txHash: infringmentAttemptsRecordedEvents[i].transactionHash
+    })
+  }
+
+  return infringmentAttempts
 }

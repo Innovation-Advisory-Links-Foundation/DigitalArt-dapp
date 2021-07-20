@@ -39,6 +39,13 @@ export type LicensePurchasedEvent = {
   txHash: string
 }
 
+export type InfringmentAttemptsRecordedEvent = {
+  tokenId: number
+  timestamp: number
+  infringmentAttemptsHash: string
+  txHash: string
+}
+
 /** TX INPUT DATA */
 export type SafeMintTxInputData = {
   title: string
@@ -69,4 +76,10 @@ export type UpdateSellingPriceInputData = {
 export type UpdateDailyLicensePriceInputData = {
   tokenId: number
   newDailyLicensePrice: string
+}
+
+export type RecordIPRInfringmentAttemptsInputData = {
+  tokenId: number
+  timestamp: number
+  infringmentAttemptsHash: string
 }

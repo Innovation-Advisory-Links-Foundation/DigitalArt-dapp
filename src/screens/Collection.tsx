@@ -11,22 +11,18 @@ import {
   CardActionArea,
   CardContent,
   IconButton,
-  Avatar,
   Collapse,
   List,
   ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Button
+  ListItemText
 } from "@material-ui/core"
 import { useHistory } from "react-router-dom"
 import ProviderContext, {
   DigitalArtContextType
 } from "../context/DigitalArtContext"
-import { NFT } from "../types/Blockchain"
+import { InfringmentAttemptsRecordedEvent, NFT } from "../types/Blockchain"
 import { formatUnits } from "ethers/lib/utils"
 import WarningIcon from "@material-ui/icons/Warning"
-import SyncIcon from "@material-ui/icons/Sync"
 import useBooleanCondition from "../hooks/useBooleanCondition"
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import clsx from "clsx"
@@ -34,7 +30,9 @@ import NFTCardsContainer from "../components/NFTCardsContainer"
 import cardStyles from "../styles/cards"
 import ImageSearchIcon from "@material-ui/icons/ImageSearch"
 import webDetect from "../utils/webDetection"
-import { IPRInfringmentAttempt, MatchingImage } from "../types/WebDetection"
+import { IPRInfringmentAttempt } from "../types/WebDetection"
+import crypto from "crypto"
+import BackdropProgress from "../components/BackdropProgress"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -102,33 +100,108 @@ export default function CollectionPage() {
   const [_infringmentAttempts, setInfringmentAttempts] = React.useState<
     Map<number, Array<IPRInfringmentAttempt>>
   >(new Map<number, Array<IPRInfringmentAttempt>>())
+  // Last detection timestamp.
+  const [_lastDetectionTimestamps, setLastDetectionTimestamps] = React.useState<
+    Map<number, number>
+  >(new Map<number, number>())
+  // Backdrop progress.
+  const [_progress = true, startProgress, stopProgress] = useBooleanCondition()
 
   // Custom providers.
   const providerContext = React.useContext(
     ProviderContext
   ) as DigitalArtContextType
-  const { _nfts, _signerAddress } = providerContext
+  const {
+    _nfts,
+    _signerAddress,
+    getInfringmentAttemptsRecordedEventForNFT,
+    recordIPRInfringementAttempts
+  } = providerContext
 
   React.useEffect(() => {
-    const provaAPI = async () => {
+    const detectIPRInfringmentAttempts = async () => {
       if (_nfts.length > 0) {
         let attempts = new Map<number, Array<IPRInfringmentAttempt>>()
+        let timestamps = new Map<number, number>()
+
+        // For each NFT that belongs to the current signer.
         for (let i = 0; i < _nfts.length; i++) {
           if (_nfts[i].owner === _signerAddress) {
+            // Get data from Google Web Detection APIs.
             const response = await webDetect(_nfts[i].metadata.image)
 
-            if (response && response.pagesWithMatchingImages)
+            // Interact with the Blockchain.
+            if (response && response.pagesWithMatchingImages) {
+              // Set attempts.
               attempts.set(
                 Number(_nfts[i].id),
                 response.pagesWithMatchingImages
               )
+
+              // Calculate the hash.
+              const infringmentAttemptsHash =
+                "0x" +
+                crypto
+                  .createHash("sha256")
+                  .update(JSON.stringify(response.pagesWithMatchingImages))
+                  .digest("hex")
+
+              // Get the last recorded hash from the blockchain.
+              const infringmentAttemptsForNFT =
+                await getInfringmentAttemptsRecordedEventForNFT(
+                  Number(_nfts[i].id)
+                )
+
+              if (infringmentAttemptsForNFT.length > 0) {
+                const lastAttempts: InfringmentAttemptsRecordedEvent =
+                  infringmentAttemptsForNFT[
+                    infringmentAttemptsForNFT.length - 1
+                  ]
+
+                // Update blockchain state.
+                if (
+                  lastAttempts.infringmentAttemptsHash !==
+                  infringmentAttemptsHash
+                ) {
+                  const timestamp = Date.now()
+                  // Send tx.
+                  await recordIPRInfringementAttempts({
+                    tokenId: Number(_nfts[i].id),
+                    timestamp: timestamp,
+                    infringmentAttemptsHash: infringmentAttemptsHash
+                  })
+
+                  timestamps.set(Number(_nfts[i].id), timestamp)
+                } else {
+                  timestamps.set(
+                    Number(_nfts[i].id),
+                    Number(lastAttempts.timestamp)
+                  )
+                }
+              } else {
+                // First detection.
+                if (response.pagesWithMatchingImages) {
+                  const timestamp = Date.now()
+                  // Send tx.
+                  await recordIPRInfringementAttempts({
+                    tokenId: Number(_nfts[i].id),
+                    timestamp: timestamp,
+                    infringmentAttemptsHash: infringmentAttemptsHash
+                  })
+
+                  timestamps.set(Number(_nfts[i].id), timestamp)
+                }
+              }
+            }
           }
         }
         setInfringmentAttempts(attempts)
+        setLastDetectionTimestamps(timestamps)
+        stopProgress()
       }
     }
-
-    provaAPI()
+    startProgress()
+    detectIPRInfringmentAttempts()
   }, [_nfts])
 
   return (
@@ -189,10 +262,9 @@ export default function CollectionPage() {
                       </Typography>
                     </Box>
 
-                    <Divider style={{ backgroundColor: "black" }} />
-
                     {_infringmentAttempts.get(Number(nft.id)) && (
                       <>
+                        <Divider style={{ backgroundColor: "black" }} />
                         <Box className={classes.iprBox}>
                           <Box>
                             <Typography
@@ -223,7 +295,13 @@ export default function CollectionPage() {
                               }}
                             >
                               <i>
-                                {new Date(Number(Date.now())).toLocaleString()}
+                                {_lastDetectionTimestamps.get(Number(nft.id))
+                                  ? new Date(
+                                      _lastDetectionTimestamps.get(
+                                        Number(nft.id)
+                                      )!
+                                    ).toLocaleString()
+                                  : ""}
                               </i>
                             </Typography>
                           </Box>
@@ -277,7 +355,7 @@ export default function CollectionPage() {
                                             className={classes.inline}
                                             color="textPrimary"
                                           >
-                                            {`Attempt Detected #${i + 1}`}
+                                            {`Attempt #${i + 1}`}
                                           </Typography>
                                           <a
                                             href={`${
@@ -349,6 +427,7 @@ export default function CollectionPage() {
               </Card>
             </Box>
           ))}
+      <BackdropProgress open={_progress} />
     </NFTCardsContainer>
   )
 }

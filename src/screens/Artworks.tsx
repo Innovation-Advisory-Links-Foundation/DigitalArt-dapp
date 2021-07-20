@@ -33,6 +33,7 @@ import Identicon from "react-identicons"
 import NFTCardsContainer from "../components/NFTCardsContainer"
 import cardStyles from "../styles/cards"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
+import BackdropProgress from "../components/BackdropProgress"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -79,6 +80,8 @@ export default function ArtworksPage() {
   >(new Map<number, Array<LicensePurchasedEvent>>())
   // Expandable card.
   const [_expanded, setExpanded, unsetExpanded] = useBooleanCondition()
+  // Backdrop progress.
+  const [_progress = true, startProgress, stopProgress] = useBooleanCondition()
 
   // Custom providers.
   const providerContext = React.useContext(
@@ -116,8 +119,10 @@ export default function ArtworksPage() {
 
       setTokenPurchases(tokenPurchases)
       setLicensePurchases(licensePurchases)
+      stopProgress()
     }
 
+    startProgress()
     getPurchases()
   }, [_nfts])
 
@@ -352,6 +357,7 @@ export default function ArtworksPage() {
               </Card>
             </Box>
           ))}
+      <BackdropProgress open={_progress} />
     </NFTCardsContainer>
   )
 }

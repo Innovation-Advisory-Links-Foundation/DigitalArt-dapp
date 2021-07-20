@@ -2,6 +2,7 @@ import React from "react"
 import { DigitalArtContextType } from "../context/DigitalArtContext"
 import { DigitalArt } from "../types/DigitalArt"
 import {
+  retrieveInfringmentAttemptsRecordedEvent,
   retrieveLicensePurchasedEvent,
   retrieveNfts,
   retrieveTokenPurchasedEvent
@@ -18,9 +19,9 @@ import {
   BuyNFTInputData,
   BuyLicenseInputData,
   UpdateSellingPriceInputData,
-  UpdateDailyLicensePriceInputData
+  UpdateDailyLicensePriceInputData,
+  RecordIPRInfringmentAttemptsInputData
 } from "../types/Blockchain"
-import webDetect from "../utils/webDetection"
 
 // Hook for handling the custom Digital Art context istance.
 export default function useDigitalArtContext(
@@ -227,6 +228,28 @@ export default function useDigitalArtContext(
   }
 
   /**
+   * Send a tx to record the latest data about IPR infringment attempts for a specific NFT.
+   * @param data <UpdateDailyLicensePriceInputData> - Necessary data to update the daily license price for a specific NFT.
+   */
+  async function recordIPRInfringementAttempts(
+    data: RecordIPRInfringmentAttemptsInputData
+  ) {
+    if (digitalArt) {
+      // Send the tx.
+      const tx = await digitalArt.contract
+        .connect(digitalArt.marketplaceSigner)
+        .recordIPRInfringementAttempts(
+          data.tokenId,
+          data.timestamp,
+          data.infringmentAttemptsHash
+        )
+
+      // Wait for tx confirmation.
+      await tx.wait()
+    }
+  }
+
+  /**
    * Return the 'TokenPurchased' smart contract events for a specific NFT.
    * @param tokenId <number> - Unique identifier of the NFT.
    */
@@ -262,6 +285,26 @@ export default function useDigitalArtContext(
     }
   }
 
+  /**
+   * Return the 'InfringmentAttemptsRecorded' smart contract events for a specific NFT.
+   * @param tokenId <number> - Unique identifier of the NFT.
+   */
+  async function getInfringmentAttemptsRecordedEventForNFT(tokenId: number) {
+    if (digitalArt) {
+      // Get the InfringmentAttemptsRecorded events.
+      const attempts = await retrieveInfringmentAttemptsRecordedEvent(
+        digitalArt.contract
+      )
+
+      // Filter for token id.
+      const infringmentAttempts = attempts.filter(
+        (attempt) => Number(attempt.tokenId) === tokenId
+      )
+
+      return infringmentAttempts
+    }
+  }
+
   return {
     _signerAddress,
     _nfts,
@@ -270,7 +313,9 @@ export default function useDigitalArtContext(
     buyLicense,
     updateSellingPrice,
     updateDailyLicensePrice,
+    recordIPRInfringementAttempts,
     getTokenPurchasedEventsForNFT,
-    getLicensePurchasedEventsForNFT
+    getLicensePurchasedEventsForNFT,
+    getInfringmentAttemptsRecordedEventForNFT
   }
 }

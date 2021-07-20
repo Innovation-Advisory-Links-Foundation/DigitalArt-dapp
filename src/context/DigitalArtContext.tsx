@@ -5,7 +5,8 @@ import {
   BuyNFTInputData,
   BuyLicenseInputData,
   UpdateDailyLicensePriceInputData,
-  UpdateSellingPriceInputData
+  UpdateSellingPriceInputData,
+  RecordIPRInfringmentAttemptsInputData
 } from "../types/Blockchain"
 
 // Type for the context object for Digital Art core business logic.
@@ -19,8 +20,12 @@ export type DigitalArtContextType = {
   updateDailyLicensePrice: (
     data: UpdateDailyLicensePriceInputData
   ) => Promise<any>
+  recordIPRInfringementAttempts: (
+    data: RecordIPRInfringmentAttemptsInputData
+  ) => Promise<any>
   getTokenPurchasedEventsForNFT: (tokenId: number) => Promise<any>
   getLicensePurchasedEventsForNFT: (tokenId: number) => Promise<any>
+  getInfringmentAttemptsRecordedEventForNFT: (tokenId: number) => Promise<any>
 }
 
 export default React.createContext<DigitalArtContextType | null>(null)

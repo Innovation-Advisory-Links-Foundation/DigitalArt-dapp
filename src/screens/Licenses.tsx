@@ -29,6 +29,7 @@ import clsx from "clsx"
 import NFTCardsContainer from "../components/NFTCardsContainer"
 import cardStyles from "../styles/cards"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
+import BackdropProgress from "../components/BackdropProgress"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -92,6 +93,9 @@ export default function LicensesPage() {
   // Expandable card.
   const [_expanded, setExpanded, unsetExpanded] = useBooleanCondition()
 
+  // Backdrop progress.
+  const [_progress = true, startProgress, stopProgress] = useBooleanCondition()
+
   // Custom providers.
   const providerContext = React.useContext(
     ProviderContext
@@ -122,8 +126,10 @@ export default function LicensesPage() {
       }
 
       setLicensePurchases(licensePurchases)
+      stopProgress()
     }
 
+    startProgress()
     getLicensePurchases()
   }, [_nfts])
 
@@ -338,6 +344,7 @@ export default function LicensesPage() {
           </Typography>
         </Box>
       )}
+      <BackdropProgress open={_progress} />
     </NFTCardsContainer>
   )
 }

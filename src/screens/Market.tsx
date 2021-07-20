@@ -22,6 +22,8 @@ import { formatUnits } from "ethers/lib/utils"
 import NFTCardsContainer from "../components/NFTCardsContainer"
 import cardStyles from "../styles/cards"
 import ArtistOwnerInfoBox from "../components/ArtistOwnerInfoBox"
+import BackdropProgress from "../components/BackdropProgress"
+import useBooleanCondition from "../hooks/useBooleanCondition"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,11 +44,22 @@ export default function MarketPage() {
   // React router dom providers.
   const history = useHistory()
 
+  // Backdrop progress.
+  const [_progress = true, startProgress, stopProgress] = useBooleanCondition()
+
   // Custom providers.
   const providerContext = React.useContext(
     ProviderContext
   ) as DigitalArtContextType
   const { _nfts } = providerContext
+
+  React.useEffect(() => {
+    startProgress()
+  }, [])
+
+  React.useEffect(() => {
+    stopProgress()
+  }, [_nfts])
 
   const filteredNFTs =
     _nfts.length > 0
@@ -123,6 +136,7 @@ export default function MarketPage() {
               </Card>
             </Box>
           ))}
+      <BackdropProgress open={_progress} />
     </NFTCardsContainer>
   )
 }
