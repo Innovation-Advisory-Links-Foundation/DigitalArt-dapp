@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack://src/index.css"],"names":[],"mappings":"AAAA,gBAGI,cACJ,CAEA,KACI,QAAS,CACT,iBACJ,CAEA,MACI,oBAAa,CAAb,YACJ","file":"main.9ffebe8c.chunk.css","sourcesContent":["html,\nbody,\n#root {\n    height: \"100vh\";\n}\n\nbody {\n    margin: 0;\n    overflow-y: hidden;\n}\n\n#root {\n    display: flex;\n}\n"]}
