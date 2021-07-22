@@ -42,6 +42,7 @@ export type LicensePurchasedEvent = {
 export type InfringmentAttemptsRecordedEvent = {
   tokenId: number
   timestamp: number
+  totalAttempts: number
   infringmentAttemptsHash: string
   txHash: string
 }
@@ -81,5 +82,6 @@ export type UpdateDailyLicensePriceInputData = {
 export type RecordIPRInfringmentAttemptsInputData = {
   tokenId: number
   timestamp: number
+  totalAttempts: number
   infringmentAttemptsHash: string
 }

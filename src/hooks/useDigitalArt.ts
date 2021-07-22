@@ -241,6 +241,7 @@ export default function useDigitalArtContext(
         .recordIPRInfringementAttempts(
           data.tokenId,
           data.timestamp,
+          data.totalAttempts,
           data.infringmentAttemptsHash
         )
 
