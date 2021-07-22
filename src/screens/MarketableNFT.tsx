@@ -211,7 +211,13 @@ export default function MarketableNFTPage() {
     <ScrollableContainer className={classes.container} maxWidth="md">
       {_nft && (
         <>
-          <img src={_nft.metadata.image} className={classes.image} alt=""></img>
+          <a target="blank" href={`${_nft.metadata.image}`}>
+            <img
+              src={_nft.metadata.image}
+              className={classes.image}
+              alt=""
+            ></img>
+          </a>
           <Typography variant="h4" component="h1">
             {_nft.metadata.title}
           </Typography>

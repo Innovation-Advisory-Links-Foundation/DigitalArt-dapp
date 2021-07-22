@@ -183,7 +183,13 @@ export default function PurchasedNFTPage() {
     <ScrollableContainer className={classes.container} maxWidth="md">
       {_nft && (
         <>
-          <img src={_nft.metadata.image} className={classes.image} alt=""></img>
+          <a target="blank" href={`${_nft.metadata.image}`}>
+            <img
+              src={_nft.metadata.image}
+              className={classes.image}
+              alt=""
+            ></img>
+          </a>
           <Typography variant="h4" component="h1">
             {_nft.metadata.title}
           </Typography>
@@ -237,7 +243,6 @@ export default function PurchasedNFTPage() {
               </Typography>
             </Box>
           </Box>
-          {/* DOING REFACTORING */}
           {_nft.owner === _signerAddress && (
             <FormControl component="fieldset" className={classes.formControl}>
               <RadioGroup
