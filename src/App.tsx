@@ -40,6 +40,7 @@ import MarketableNFTPage from "./screens/MarketableNFT"
 import CollectionPage from "./screens/Collection"
 import PurchasedNFTPage from "./screens/PurchasedNFT"
 import LicensesPage from "./screens/Licenses"
+import detectEthereumProvider from "@metamask/detect-provider"
 
 // Custom styles.
 const useStyles = makeStyles((theme: Theme) =>
@@ -134,7 +135,7 @@ function App() {
     const connectToBlockchain = async () => {
       try {
         // Let's check for the injected window.ethereum global object.
-        const ethereumInjectedProvider = window.ethereum
+        const ethereumInjectedProvider: any = await detectEthereumProvider()
 
         // Check for MetaMask provider.
         if (!ethereumInjectedProvider?.isMetaMask) {
